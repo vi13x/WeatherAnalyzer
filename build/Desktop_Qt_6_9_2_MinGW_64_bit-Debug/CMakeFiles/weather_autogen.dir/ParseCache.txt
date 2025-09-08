@@ -198,6 +198,7 @@ D:/project Qt/weather/mainwindow.h
  mdp:D:/Qt/6.9.2/mingw_64/include/QtGui/qvectornd.h
  mdp:D:/Qt/6.9.2/mingw_64/include/QtGui/qwindowdefs.h
  mdp:D:/Qt/6.9.2/mingw_64/include/QtGui/qwindowdefs_win.h
+ mdp:D:/Qt/6.9.2/mingw_64/include/QtWidgets/QComboBox
  mdp:D:/Qt/6.9.2/mingw_64/include/QtWidgets/QDateTimeEdit
  mdp:D:/Qt/6.9.2/mingw_64/include/QtWidgets/QDoubleSpinBox
  mdp:D:/Qt/6.9.2/mingw_64/include/QtWidgets/QMainWindow
@@ -210,6 +211,7 @@ D:/project Qt/weather/mainwindow.h
  mdp:D:/Qt/6.9.2/mingw_64/include/QtWidgets/qabstractscrollarea.h
  mdp:D:/Qt/6.9.2/mingw_64/include/QtWidgets/qabstractslider.h
  mdp:D:/Qt/6.9.2/mingw_64/include/QtWidgets/qabstractspinbox.h
+ mdp:D:/Qt/6.9.2/mingw_64/include/QtWidgets/qcombobox.h
  mdp:D:/Qt/6.9.2/mingw_64/include/QtWidgets/qdatetimeedit.h
  mdp:D:/Qt/6.9.2/mingw_64/include/QtWidgets/qframe.h
  mdp:D:/Qt/6.9.2/mingw_64/include/QtWidgets/qmainwindow.h

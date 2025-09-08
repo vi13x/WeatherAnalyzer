@@ -2,17 +2,19 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include <QDateTimeEdit>
+#include <QDoubleSpinBox>
 #include <QTableWidget>
 #include <QPlainTextEdit>
-#include <QDoubleSpinBox>
-#include <QDateTimeEdit>
 #include <QPushButton>
+#include <QComboBox>
 
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
+
 public:
-    explicit MainWindow(QWidget *parent = nullptr);
+    MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
 private slots:
@@ -22,9 +24,8 @@ private slots:
     void loadFromJson();
 
 private:
-    QTableWidget *table;
-    QPlainTextEdit *analysisText;
-
+    // Элементы интерфейса
+    QComboBox *cityComboBox;
     QDateTimeEdit *dateTimeEdit;
     QDoubleSpinBox *radiationSpin;
     QDoubleSpinBox *temperatureSpin;
@@ -32,6 +33,17 @@ private:
     QDoubleSpinBox *pressureSpin;
     QDoubleSpinBox *windSpin;
     QDoubleSpinBox *uvSpin;
+
+    QTableWidget *table;
+    QPlainTextEdit *analysisText;
+
+    QPushButton *btnAdd;
+    QPushButton *btnAnalyze;
+    QPushButton *btnSave;
+    QPushButton *btnLoad;
+
+    // Метод для инициализации городов
+    void initializeCities();
 };
 
 #endif // MAINWINDOW_H

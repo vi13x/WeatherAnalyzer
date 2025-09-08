@@ -197,6 +197,7 @@ D:/project\ Qt/weather/build/Desktop_Qt_6_9_2_MinGW_64_bit-Debug/weather_autogen
   D:/Qt/6.9.2/mingw_64/include/QtGui/qvectornd.h \
   D:/Qt/6.9.2/mingw_64/include/QtGui/qwindowdefs.h \
   D:/Qt/6.9.2/mingw_64/include/QtGui/qwindowdefs_win.h \
+  D:/Qt/6.9.2/mingw_64/include/QtWidgets/QComboBox \
   D:/Qt/6.9.2/mingw_64/include/QtWidgets/QDateTimeEdit \
   D:/Qt/6.9.2/mingw_64/include/QtWidgets/QDoubleSpinBox \
   D:/Qt/6.9.2/mingw_64/include/QtWidgets/QMainWindow \
@@ -209,6 +210,7 @@ D:/project\ Qt/weather/build/Desktop_Qt_6_9_2_MinGW_64_bit-Debug/weather_autogen
   D:/Qt/6.9.2/mingw_64/include/QtWidgets/qabstractscrollarea.h \
   D:/Qt/6.9.2/mingw_64/include/QtWidgets/qabstractslider.h \
   D:/Qt/6.9.2/mingw_64/include/QtWidgets/qabstractspinbox.h \
+  D:/Qt/6.9.2/mingw_64/include/QtWidgets/qcombobox.h \
   D:/Qt/6.9.2/mingw_64/include/QtWidgets/qdatetimeedit.h \
   D:/Qt/6.9.2/mingw_64/include/QtWidgets/qframe.h \
   D:/Qt/6.9.2/mingw_64/include/QtWidgets/qmainwindow.h \
