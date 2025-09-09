@@ -1,5 +1,5 @@
-D:/project\ Qt/weather/build/Desktop_Qt_6_9_2_MinGW_64_bit-Debug/weather_autogen/EWIEGA46WW/moc_mainwindow.cpp: D:/project\ Qt/weather/mainwindow.h \
-  D:/project\ Qt/weather/build/Desktop_Qt_6_9_2_MinGW_64_bit-Debug/weather_autogen/moc_predefs.h \
+D:/project\ Qt/weather/build/Desktop_Qt_6_9_2_MinGW_64_bit-Debug/WeatherAnalyzer_autogen/EWIEGA46WW/moc_mainwindow.cpp: D:/project\ Qt/weather/mainwindow.h \
+  D:/project\ Qt/weather/build/Desktop_Qt_6_9_2_MinGW_64_bit-Debug/WeatherAnalyzer_autogen/moc_predefs.h \
   D:/Qt/6.9.2/mingw_64/include/QtCore/QMap \
   D:/Qt/6.9.2/mingw_64/include/QtCore/q17memory.h \
   D:/Qt/6.9.2/mingw_64/include/QtCore/q20functional.h \

@@ -2,19 +2,29 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
-#include <QDateTimeEdit>
-#include <QDoubleSpinBox>
-#include <QTableWidget>
-#include <QPlainTextEdit>
-#include <QPushButton>
-#include <QComboBox>
+#include <QMap>
+
+// Предварительные объявления для графиков
+class QTabWidget;
+class QChartView;
+class QChart;
+class QLineSeries;
+class QValueAxis;
+class QComboBox;
+class QDateTimeEdit;
+class QDoubleSpinBox;
+class QTableWidget;
+class QPlainTextEdit;
+class QPushButton;
+
+struct Coord { double lat; double lon; };
 
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
 
 public:
-    MainWindow(QWidget *parent = nullptr);
+    explicit MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
 private slots:
@@ -22,9 +32,32 @@ private slots:
     void analyzeData();
     void saveToJson();
     void loadFromJson();
+    void updateCharts();
 
 private:
-    // Элементы интерфейса
+    void initializeCities();
+    void setupCharts();
+    void createTemperatureChart();
+    void createRadiationChart();
+    void createHumidityChart();
+    void createWindChart();
+    void createPressureChart();
+    void createUVChart();
+
+
+    // Указатели на UI элементы
+    QTabWidget *tabWidget;
+    QWidget *dataTab;
+    QWidget *chartsTab;
+
+    // Графики
+    QChartView *temperatureChartView;
+    QChartView *radiationChartView;
+    QChartView *humidityChartView;
+    QChartView *windChartView;
+    QChartView *pressureChartView;
+    QChartView *uvChartView;
+
     QComboBox *cityComboBox;
     QDateTimeEdit *dateTimeEdit;
     QDoubleSpinBox *radiationSpin;
@@ -41,9 +74,9 @@ private:
     QPushButton *btnAnalyze;
     QPushButton *btnSave;
     QPushButton *btnLoad;
+    QPushButton *btnUpdateCharts;
 
-    // Метод для инициализации городов
-    void initializeCities();
+    QMap<QString, Coord> cityCoords;
 };
 
 #endif // MAINWINDOW_H

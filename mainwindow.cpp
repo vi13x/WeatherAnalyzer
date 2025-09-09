@@ -15,15 +15,39 @@
 #include <QLabel>
 #include <QFrame>
 #include <QStatusBar>
+#include <QScrollArea>
+#include <QTabWidget>
+#include <QComboBox>
+#include <QDateTimeEdit>
+#include <QDoubleSpinBox>
+#include <QTableWidget>
+#include <QPlainTextEdit>
+#include <QPushButton>
+#include <QChartView>
+#include <QLineSeries>
+#include <QValueAxis>
 
-// === Конструктор ===
+
+
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
 {
-    resize(1200, 800);
+    resize(1400, 900);
     setWindowTitle("🌤️ Анализатор погодных данных");
 
-    // Установка стиля приложения
+
+    tabWidget = new QTabWidget(this);
+    setCentralWidget(tabWidget);
+
+
+    dataTab = new QWidget;
+    tabWidget->addTab(dataTab, "📋 Данные");
+
+
+    chartsTab = new QWidget;
+    tabWidget->addTab(chartsTab, "📊 Графики");
+
+
     this->setStyleSheet(R"(
         QMainWindow {
             background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
@@ -53,14 +77,11 @@ MainWindow::MainWindow(QWidget *parent)
         }
     )");
 
-    QWidget *central = new QWidget(this);
-    setCentralWidget(central);
+    QHBoxLayout *mainDataLayout = new QHBoxLayout(dataTab);
+    mainDataLayout->setSpacing(20);
+    mainDataLayout->setContentsMargins(20, 20, 20, 20);
 
-    QHBoxLayout *mainLayout = new QHBoxLayout(central);
-    mainLayout->setSpacing(20);
-    mainLayout->setContentsMargins(20, 20, 20, 20);
 
-    // === ЛЕВАЯ ПАНЕЛЬ (Ввод данных) ===
     QFrame *leftPanel = new QFrame;
     leftPanel->setStyleSheet(R"(
         QFrame {
@@ -75,7 +96,7 @@ MainWindow::MainWindow(QWidget *parent)
     leftLayout->setSpacing(15);
     leftLayout->setContentsMargins(15, 15, 15, 15);
 
-    // Группа ввода данных
+
     QGroupBox *inputGroup = new QGroupBox("📝 Ввод данных измерений");
 
     QFormLayout *formLayout = new QFormLayout;
@@ -83,7 +104,7 @@ MainWindow::MainWindow(QWidget *parent)
     formLayout->setLabelAlignment(Qt::AlignRight);
     formLayout->setContentsMargins(10, 15, 10, 15);
 
-    // Выбор города
+
     cityComboBox = new QComboBox;
     initializeCities();
     cityComboBox->setStyleSheet(R"(
@@ -233,13 +254,13 @@ MainWindow::MainWindow(QWidget *parent)
     inputGroup->setLayout(formLayout);
     leftLayout->addWidget(inputGroup);
 
-    // Кнопки
+
     btnAdd = new QPushButton("➕ Добавить запись");
     btnAnalyze = new QPushButton("📊 Анализировать данные");
     btnSave = new QPushButton("💾 Сохранить JSON");
     btnLoad = new QPushButton("📂 Загрузить JSON");
 
-    // Стилизация кнопок
+
     QString buttonBaseStyle = R"(
         QPushButton {
             padding: 12px;
@@ -301,11 +322,11 @@ MainWindow::MainWindow(QWidget *parent)
     leftLayout->addWidget(btnLoad);
     leftLayout->addStretch();
 
-    // === ПРАВАЯ ПАНЕЛЬ (Таблица + Анализ) ===
+
     QVBoxLayout *rightLayout = new QVBoxLayout;
     rightLayout->setSpacing(15);
 
-    // Таблица данных
+
     QGroupBox *tableGroup = new QGroupBox("📋 Таблица измерений");
 
     QVBoxLayout *tableLayout = new QVBoxLayout;
@@ -359,7 +380,7 @@ MainWindow::MainWindow(QWidget *parent)
     tableGroup->setLayout(tableLayout);
     rightLayout->addWidget(tableGroup, 7);
 
-    // Панель анализа
+
     QGroupBox *analysisBox = new QGroupBox("📊 Результаты анализа");
 
     QVBoxLayout *analysisLayout = new QVBoxLayout;
@@ -385,11 +406,107 @@ MainWindow::MainWindow(QWidget *parent)
     analysisBox->setLayout(analysisLayout);
     rightLayout->addWidget(analysisBox, 3);
 
-    // === Итоговый Layout ===
-    mainLayout->addWidget(leftPanel, 3);
-    mainLayout->addLayout(rightLayout, 7);
 
-    // Статус бар
+    mainDataLayout->addWidget(leftPanel, 3);
+    mainDataLayout->addLayout(rightLayout, 7);
+
+
+    QVBoxLayout *chartsLayout = new QVBoxLayout(chartsTab);
+    chartsLayout->setSpacing(15);
+    chartsLayout->setContentsMargins(20, 20, 20, 20);
+
+
+    QHBoxLayout *chartsButtonLayout = new QHBoxLayout;
+    btnUpdateCharts = new QPushButton("🔄 Обновить графики");
+    btnUpdateCharts->setStyleSheet(buttonBaseStyle + R"(
+        QPushButton {
+            background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
+                stop: 0 #e74c3c, stop: 1 #c0392b);
+            color: white;
+        }
+    )");
+    connect(btnUpdateCharts, &QPushButton::clicked, this, &MainWindow::updateCharts);
+
+    chartsButtonLayout->addWidget(btnUpdateCharts);
+    chartsButtonLayout->addStretch();
+    chartsLayout->addLayout(chartsButtonLayout);
+
+
+    QScrollArea *scrollArea = new QScrollArea;
+    scrollArea->setWidgetResizable(true);
+    scrollArea->setStyleSheet(R"(
+        QScrollArea {
+            border: none;
+            background: transparent;
+        }
+    )");
+
+    QWidget *chartsContainer = new QWidget;
+    QVBoxLayout *chartsContainerLayout = new QVBoxLayout(chartsContainer);
+    chartsContainerLayout->setSpacing(20);
+
+
+    temperatureChartView = new QChartView;
+    radiationChartView = new QChartView;
+    humidityChartView = new QChartView;
+    windChartView = new QChartView;
+    pressureChartView = new QChartView;
+    uvChartView = new QChartView;
+
+
+    QSize chartSize(600, 300);
+    temperatureChartView->setMinimumSize(chartSize);
+    radiationChartView->setMinimumSize(chartSize);
+    humidityChartView->setMinimumSize(chartSize);
+    windChartView->setMinimumSize(chartSize);
+    pressureChartView->setMinimumSize(chartSize);
+    uvChartView->setMinimumSize(chartSize);
+
+    temperatureChartView->setRenderHint(QPainter::Antialiasing);
+    radiationChartView->setRenderHint(QPainter::Antialiasing);
+    humidityChartView->setRenderHint(QPainter::Antialiasing);
+    windChartView->setRenderHint(QPainter::Antialiasing);
+    pressureChartView->setRenderHint(QPainter::Antialiasing);
+    uvChartView->setRenderHint(QPainter::Antialiasing);
+
+
+    QLabel *tempLabel = new QLabel("🌡️ Температура (°C)");
+    tempLabel->setStyleSheet("QLabel { font-weight: bold; font-size: 14px; color: #2c3e50; }");
+    chartsContainerLayout->addWidget(tempLabel);
+    chartsContainerLayout->addWidget(temperatureChartView);
+
+    QLabel *radLabel = new QLabel("☀️ Солнечная радиация (Вт/м²)");
+    radLabel->setStyleSheet("QLabel { font-weight: bold; font-size: 14px; color: #2c3e50; }");
+    chartsContainerLayout->addWidget(radLabel);
+    chartsContainerLayout->addWidget(radiationChartView);
+
+    QLabel *humLabel = new QLabel("💧 Влажность (%)");
+    humLabel->setStyleSheet("QLabel { font-weight: bold; font-size: 14px; color: #2c3e50; }");
+    chartsContainerLayout->addWidget(humLabel);
+    chartsContainerLayout->addWidget(humidityChartView);
+
+    QLabel *windLabel = new QLabel("🌬️ Скорость ветра (м/с)");
+    windLabel->setStyleSheet("QLabel { font-weight: bold; font-size: 14px; color: #2c3e50; }");
+    chartsContainerLayout->addWidget(windLabel);
+    chartsContainerLayout->addWidget(windChartView);
+
+    QLabel *pressLabel = new QLabel("📊 Давление (гПа)");
+    pressLabel->setStyleSheet("QLabel { font-weight: bold; font-size: 14px; color: #2c3e50; }");
+    chartsContainerLayout->addWidget(pressLabel);
+    chartsContainerLayout->addWidget(pressureChartView);
+
+    QLabel *uvLabel = new QLabel("🟣 УФ-индекс");
+    uvLabel->setStyleSheet("QLabel { font-weight: bold; font-size: 14px; color: #2c3e50; }");
+    chartsContainerLayout->addWidget(uvLabel);
+    chartsContainerLayout->addWidget(uvChartView);
+
+    scrollArea->setWidget(chartsContainer);
+    chartsLayout->addWidget(scrollArea);
+
+
+    setupCharts();
+
+
     statusBar()->setStyleSheet(R"(
         QStatusBar {
             background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
@@ -402,7 +519,7 @@ MainWindow::MainWindow(QWidget *parent)
     statusBar()->showMessage("✅ Готов к работе. Выберите город для начала.");
 }
 
-// Инициализация списка городов Беларуси
+
 void MainWindow::initializeCities()
 {
     cityComboBox->addItem("Минск", "Minsk");
@@ -427,10 +544,9 @@ void MainWindow::initializeCities()
     cityComboBox->addItem("Жодино", "Zhodino");
 }
 
-// === Деструктор ===
+
 MainWindow::~MainWindow() = default;
 
-// === Добавление записи ===
 void MainWindow::addRecord()
 {
     QString city = cityComboBox->currentText();
@@ -455,7 +571,7 @@ void MainWindow::addRecord()
 }
 
 
-// === Анализ данных ===
+
 void MainWindow::analyzeData()
 {
     int rows = table->rowCount();
@@ -465,7 +581,7 @@ void MainWindow::analyzeData()
         return;
     }
 
-    // Получаем текущий выбранный город для фильтрации
+
     QString currentCity = cityComboBox->currentText();
 
     QVector<double> temps; temps.reserve(rows);
@@ -480,7 +596,7 @@ void MainWindow::analyzeData()
     for (int i = 0; i < rows; ++i) {
         QString recordCity = table->item(i, 0)->text();
 
-        // Фильтруем по выбранному городу
+
         if (recordCity == currentCity) {
             temps.append(table->item(i, 3)->text().toDouble());
             rads.append(table->item(i, 2)->text().toDouble());
@@ -566,7 +682,7 @@ void MainWindow::analyzeData()
     statusBar()->showMessage(QString("Анализ завершен для города %1. Обработано %2 записей").arg(currentCity).arg(cityRecordCount), 5000);
 }
 
-// === Сохранение JSON ===
+
 void MainWindow::saveToJson()
 {
     if (table->rowCount() == 0) {
@@ -606,7 +722,7 @@ void MainWindow::saveToJson()
     statusBar()->showMessage(QString("Данные сохранены в: %1").arg(fileName), 5000);
 }
 
-// === Загрузка JSON ===
+
 void MainWindow::loadFromJson()
 {
     QString fileName = QFileDialog::getOpenFileName(this, "Загрузить данные", "", "JSON файлы (*.json)");
@@ -649,3 +765,190 @@ void MainWindow::loadFromJson()
     QMessageBox::information(this, "Успех", QString("Загружено %1 записей из файла:\n%2").arg(records.size()).arg(fileName));
     statusBar()->showMessage(QString("Загружено %1 записей из %2").arg(records.size()).arg(fileName), 5000);
 }
+
+
+void MainWindow::setupCharts()
+{
+    createTemperatureChart();
+    createRadiationChart();
+    createHumidityChart();
+    createWindChart();
+    createPressureChart();
+    createUVChart();
+}
+
+void MainWindow::createTemperatureChart()
+{
+    QChart *chart = new QChart();
+    chart->setTitle("🌡️ Температура");
+    chart->setAnimationOptions(QChart::SeriesAnimations);
+    chart->setTheme(QChart::ChartThemeLight);
+
+    QLineSeries *series = new QLineSeries();
+    series->setName("Температура (°C)");
+
+    chart->addSeries(series);
+    chart->createDefaultAxes();
+
+    temperatureChartView->setChart(chart);
+}
+
+void MainWindow::createRadiationChart()
+{
+    QChart *chart = new QChart();
+    chart->setTitle("☀️ Солнечная радиация");
+    chart->setAnimationOptions(QChart::SeriesAnimations);
+    chart->setTheme(QChart::ChartThemeLight);
+
+    QLineSeries *series = new QLineSeries();
+    series->setName("Радиация (Вт/м²)");
+
+    chart->addSeries(series);
+    chart->createDefaultAxes();
+
+    radiationChartView->setChart(chart);
+}
+
+void MainWindow::createHumidityChart()
+{
+    QChart *chart = new QChart();
+    chart->setTitle("💧 Влажность");
+    chart->setAnimationOptions(QChart::SeriesAnimations);
+    chart->setTheme(QChart::ChartThemeLight);
+
+    QLineSeries *series = new QLineSeries();
+    series->setName("Влажность (%)");
+
+    chart->addSeries(series);
+    chart->createDefaultAxes();
+
+    humidityChartView->setChart(chart);
+}
+
+void MainWindow::createWindChart()
+{
+    QChart *chart = new QChart();
+    chart->setTitle("🌬️ Скорость ветра");
+    chart->setAnimationOptions(QChart::SeriesAnimations);
+    chart->setTheme(QChart::ChartThemeLight);
+
+    QLineSeries *series = new QLineSeries();
+    series->setName("Ветер (м/с)");
+
+    chart->addSeries(series);
+    chart->createDefaultAxes();
+
+    windChartView->setChart(chart);
+}
+
+void MainWindow::createPressureChart()
+{
+    QChart *chart = new QChart();
+    chart->setTitle("📊 Давление");
+    chart->setAnimationOptions(QChart::SeriesAnimations);
+    chart->setTheme(QChart::ChartThemeLight);
+
+    QLineSeries *series = new QLineSeries();
+    series->setName("Давление (гПа)");
+
+    chart->addSeries(series);
+    chart->createDefaultAxes();
+
+    pressureChartView->setChart(chart);
+}
+
+void MainWindow::createUVChart()
+{
+    QChart *chart = new QChart();
+    chart->setTitle("🟣 УФ-индекс");
+    chart->setAnimationOptions(QChart::SeriesAnimations);
+    chart->setTheme(QChart::ChartThemeLight);
+
+    QLineSeries *series = new QLineSeries();
+    series->setName("УФ-индекс");
+
+    chart->addSeries(series);
+    chart->createDefaultAxes();
+
+    uvChartView->setChart(chart);
+}
+
+void MainWindow::updateCharts()
+{
+    QString currentCity = cityComboBox->currentText();
+
+    QVector<double> temperatures, radiations, humidities, winds, pressures, uvs;
+
+    int rowCount = table->rowCount();
+    for (int i = 0; i < rowCount; ++i) {
+        if (table->item(i, 0)->text() == currentCity) {
+            temperatures.append(table->item(i, 3)->text().toDouble());
+            radiations.append(table->item(i, 2)->text().toDouble());
+            humidities.append(table->item(i, 4)->text().toDouble());
+            winds.append(table->item(i, 6)->text().toDouble());
+            pressures.append(table->item(i, 5)->text().toDouble());
+            uvs.append(table->item(i, 7)->text().toDouble());
+        }
+    }
+
+    if (temperatures.isEmpty()) {
+        QMessageBox::information(this, "Нет данных", "Нет данных для построения графиков");
+        return;
+    }
+
+
+    QLineSeries *tempSeries = new QLineSeries();
+    tempSeries->setName("Температура");
+    for (int i = 0; i < temperatures.size(); ++i) {
+        tempSeries->append(i, temperatures[i]);
+    }
+
+    QChart *tempChart = temperatureChartView->chart();
+    tempChart->removeAllSeries();
+    tempChart->addSeries(tempSeries);
+    tempChart->createDefaultAxes();
+
+
+    QLineSeries *radSeries = new QLineSeries();
+    for (int i = 0; i < radiations.size(); ++i) {
+        radSeries->append(i, radiations[i]);
+    }
+    radiationChartView->chart()->removeAllSeries();
+    radiationChartView->chart()->addSeries(radSeries);
+    radiationChartView->chart()->createDefaultAxes();
+
+    QLineSeries *humSeries = new QLineSeries();
+    for (int i = 0; i < humidities.size(); ++i) {
+        humSeries->append(i, humidities[i]);
+    }
+    humidityChartView->chart()->removeAllSeries();
+    humidityChartView->chart()->addSeries(humSeries);
+    humidityChartView->chart()->createDefaultAxes();
+
+    QLineSeries *windSeries = new QLineSeries();
+    for (int i = 0; i < winds.size(); ++i) {
+        windSeries->append(i, winds[i]);
+    }
+    windChartView->chart()->removeAllSeries();
+    windChartView->chart()->addSeries(windSeries);
+    windChartView->chart()->createDefaultAxes();
+
+    QLineSeries *pressSeries = new QLineSeries();
+    for (int i = 0; i < pressures.size(); ++i) {
+        pressSeries->append(i, pressures[i]);
+    }
+    pressureChartView->chart()->removeAllSeries();
+    pressureChartView->chart()->addSeries(pressSeries);
+    pressureChartView->chart()->createDefaultAxes();
+
+    QLineSeries *uvSeries = new QLineSeries();
+    for (int i = 0; i < uvs.size(); ++i) {
+        uvSeries->append(i, uvs[i]);
+    }
+    uvChartView->chart()->removeAllSeries();
+    uvChartView->chart()->addSeries(uvSeries);
+    uvChartView->chart()->createDefaultAxes();
+
+    statusBar()->showMessage("✅ Графики обновлены", 3000);
+}
+

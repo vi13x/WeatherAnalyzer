@@ -1,4 +1,4 @@
-weather_autogen/timestamp: \
+WeatherAnalyzer_autogen/timestamp: \
 	D:/Qt/6.9.2/mingw_64/include/QtCore/QMap \
 	D:/Qt/6.9.2/mingw_64/include/QtCore/q17memory.h \
 	D:/Qt/6.9.2/mingw_64/include/QtCore/q20functional.h \
@@ -200,6 +200,21 @@ weather_autogen/timestamp: \
 	D:/Qt/6.9.2/mingw_64/lib/cmake/Qt6/QtPublicToolHelpers.cmake \
 	D:/Qt/6.9.2/mingw_64/lib/cmake/Qt6/QtPublicWalkLibsHelpers.cmake \
 	D:/Qt/6.9.2/mingw_64/lib/cmake/Qt6/QtPublicWindowsHelpers.cmake \
+	D:/Qt/6.9.2/mingw_64/lib/cmake/Qt6Charts/Qt6ChartsAdditionalTargetInfo.cmake \
+	D:/Qt/6.9.2/mingw_64/lib/cmake/Qt6Charts/Qt6ChartsConfig.cmake \
+	D:/Qt/6.9.2/mingw_64/lib/cmake/Qt6Charts/Qt6ChartsConfigVersion.cmake \
+	D:/Qt/6.9.2/mingw_64/lib/cmake/Qt6Charts/Qt6ChartsConfigVersionImpl.cmake \
+	D:/Qt/6.9.2/mingw_64/lib/cmake/Qt6Charts/Qt6ChartsDependencies.cmake \
+	D:/Qt/6.9.2/mingw_64/lib/cmake/Qt6Charts/Qt6ChartsTargets-relwithdebinfo.cmake \
+	D:/Qt/6.9.2/mingw_64/lib/cmake/Qt6Charts/Qt6ChartsTargets.cmake \
+	D:/Qt/6.9.2/mingw_64/lib/cmake/Qt6Charts/Qt6ChartsVersionlessAliasTargets.cmake \
+	D:/Qt/6.9.2/mingw_64/lib/cmake/Qt6ChartsPrivate/Qt6ChartsPrivateAdditionalTargetInfo.cmake \
+	D:/Qt/6.9.2/mingw_64/lib/cmake/Qt6ChartsPrivate/Qt6ChartsPrivateConfig.cmake \
+	D:/Qt/6.9.2/mingw_64/lib/cmake/Qt6ChartsPrivate/Qt6ChartsPrivateConfigVersion.cmake \
+	D:/Qt/6.9.2/mingw_64/lib/cmake/Qt6ChartsPrivate/Qt6ChartsPrivateConfigVersionImpl.cmake \
+	D:/Qt/6.9.2/mingw_64/lib/cmake/Qt6ChartsPrivate/Qt6ChartsPrivateDependencies.cmake \
+	D:/Qt/6.9.2/mingw_64/lib/cmake/Qt6ChartsPrivate/Qt6ChartsPrivateTargets.cmake \
+	D:/Qt/6.9.2/mingw_64/lib/cmake/Qt6ChartsPrivate/Qt6ChartsPrivateVersionlessAliasTargets.cmake \
 	D:/Qt/6.9.2/mingw_64/lib/cmake/Qt6Core/Qt6CoreAdditionalTargetInfo.cmake \
 	D:/Qt/6.9.2/mingw_64/lib/cmake/Qt6Core/Qt6CoreConfig.cmake \
 	D:/Qt/6.9.2/mingw_64/lib/cmake/Qt6Core/Qt6CoreConfigExtras.cmake \
@@ -297,6 +312,36 @@ weather_autogen/timestamp: \
 	D:/Qt/6.9.2/mingw_64/lib/cmake/Qt6GuiTools/Qt6GuiToolsTargets-relwithdebinfo.cmake \
 	D:/Qt/6.9.2/mingw_64/lib/cmake/Qt6GuiTools/Qt6GuiToolsTargets.cmake \
 	D:/Qt/6.9.2/mingw_64/lib/cmake/Qt6GuiTools/Qt6GuiToolsVersionlessTargets.cmake \
+	D:/Qt/6.9.2/mingw_64/lib/cmake/Qt6OpenGL/Qt6OpenGLAdditionalTargetInfo.cmake \
+	D:/Qt/6.9.2/mingw_64/lib/cmake/Qt6OpenGL/Qt6OpenGLConfig.cmake \
+	D:/Qt/6.9.2/mingw_64/lib/cmake/Qt6OpenGL/Qt6OpenGLConfigVersion.cmake \
+	D:/Qt/6.9.2/mingw_64/lib/cmake/Qt6OpenGL/Qt6OpenGLConfigVersionImpl.cmake \
+	D:/Qt/6.9.2/mingw_64/lib/cmake/Qt6OpenGL/Qt6OpenGLDependencies.cmake \
+	D:/Qt/6.9.2/mingw_64/lib/cmake/Qt6OpenGL/Qt6OpenGLTargets-relwithdebinfo.cmake \
+	D:/Qt/6.9.2/mingw_64/lib/cmake/Qt6OpenGL/Qt6OpenGLTargets.cmake \
+	D:/Qt/6.9.2/mingw_64/lib/cmake/Qt6OpenGL/Qt6OpenGLVersionlessAliasTargets.cmake \
+	D:/Qt/6.9.2/mingw_64/lib/cmake/Qt6OpenGLPrivate/Qt6OpenGLPrivateAdditionalTargetInfo.cmake \
+	D:/Qt/6.9.2/mingw_64/lib/cmake/Qt6OpenGLPrivate/Qt6OpenGLPrivateConfig.cmake \
+	D:/Qt/6.9.2/mingw_64/lib/cmake/Qt6OpenGLPrivate/Qt6OpenGLPrivateConfigVersion.cmake \
+	D:/Qt/6.9.2/mingw_64/lib/cmake/Qt6OpenGLPrivate/Qt6OpenGLPrivateConfigVersionImpl.cmake \
+	D:/Qt/6.9.2/mingw_64/lib/cmake/Qt6OpenGLPrivate/Qt6OpenGLPrivateDependencies.cmake \
+	D:/Qt/6.9.2/mingw_64/lib/cmake/Qt6OpenGLPrivate/Qt6OpenGLPrivateTargets.cmake \
+	D:/Qt/6.9.2/mingw_64/lib/cmake/Qt6OpenGLPrivate/Qt6OpenGLPrivateVersionlessAliasTargets.cmake \
+	D:/Qt/6.9.2/mingw_64/lib/cmake/Qt6OpenGLWidgets/Qt6OpenGLWidgetsAdditionalTargetInfo.cmake \
+	D:/Qt/6.9.2/mingw_64/lib/cmake/Qt6OpenGLWidgets/Qt6OpenGLWidgetsConfig.cmake \
+	D:/Qt/6.9.2/mingw_64/lib/cmake/Qt6OpenGLWidgets/Qt6OpenGLWidgetsConfigVersion.cmake \
+	D:/Qt/6.9.2/mingw_64/lib/cmake/Qt6OpenGLWidgets/Qt6OpenGLWidgetsConfigVersionImpl.cmake \
+	D:/Qt/6.9.2/mingw_64/lib/cmake/Qt6OpenGLWidgets/Qt6OpenGLWidgetsDependencies.cmake \
+	D:/Qt/6.9.2/mingw_64/lib/cmake/Qt6OpenGLWidgets/Qt6OpenGLWidgetsTargets-relwithdebinfo.cmake \
+	D:/Qt/6.9.2/mingw_64/lib/cmake/Qt6OpenGLWidgets/Qt6OpenGLWidgetsTargets.cmake \
+	D:/Qt/6.9.2/mingw_64/lib/cmake/Qt6OpenGLWidgets/Qt6OpenGLWidgetsVersionlessAliasTargets.cmake \
+	D:/Qt/6.9.2/mingw_64/lib/cmake/Qt6OpenGLWidgetsPrivate/Qt6OpenGLWidgetsPrivateAdditionalTargetInfo.cmake \
+	D:/Qt/6.9.2/mingw_64/lib/cmake/Qt6OpenGLWidgetsPrivate/Qt6OpenGLWidgetsPrivateConfig.cmake \
+	D:/Qt/6.9.2/mingw_64/lib/cmake/Qt6OpenGLWidgetsPrivate/Qt6OpenGLWidgetsPrivateConfigVersion.cmake \
+	D:/Qt/6.9.2/mingw_64/lib/cmake/Qt6OpenGLWidgetsPrivate/Qt6OpenGLWidgetsPrivateConfigVersionImpl.cmake \
+	D:/Qt/6.9.2/mingw_64/lib/cmake/Qt6OpenGLWidgetsPrivate/Qt6OpenGLWidgetsPrivateDependencies.cmake \
+	D:/Qt/6.9.2/mingw_64/lib/cmake/Qt6OpenGLWidgetsPrivate/Qt6OpenGLWidgetsPrivateTargets.cmake \
+	D:/Qt/6.9.2/mingw_64/lib/cmake/Qt6OpenGLWidgetsPrivate/Qt6OpenGLWidgetsPrivateVersionlessAliasTargets.cmake \
 	D:/Qt/6.9.2/mingw_64/lib/cmake/Qt6Widgets/Qt6QModernWindowsStylePluginAdditionalTargetInfo.cmake \
 	D:/Qt/6.9.2/mingw_64/lib/cmake/Qt6Widgets/Qt6QModernWindowsStylePluginConfig.cmake \
 	D:/Qt/6.9.2/mingw_64/lib/cmake/Qt6Widgets/Qt6QModernWindowsStylePluginTargets-relwithdebinfo.cmake \
@@ -332,6 +377,7 @@ weather_autogen/timestamp: \
 	D:/Qt/6.9.2/mingw_64/lib/cmake/Qt6ZlibPrivate/Qt6ZlibPrivateConfigVersionImpl.cmake \
 	D:/Qt/6.9.2/mingw_64/lib/cmake/Qt6ZlibPrivate/Qt6ZlibPrivateTargets.cmake \
 	D:/Qt/6.9.2/mingw_64/lib/cmake/Qt6ZlibPrivate/Qt6ZlibPrivateVersionlessAliasTargets.cmake \
+	D:/Qt/Tools/CMake_64/share/cmake-3.30/Modules/CMakeCInformation.cmake \
 	D:/Qt/Tools/CMake_64/share/cmake-3.30/Modules/CMakeCXXInformation.cmake \
 	D:/Qt/Tools/CMake_64/share/cmake-3.30/Modules/CMakeCheckCompilerFlagCommonPatterns.cmake \
 	D:/Qt/Tools/CMake_64/share/cmake-3.30/Modules/CMakeCommonLanguageInclude.cmake \
@@ -342,11 +388,13 @@ weather_autogen/timestamp: \
 	D:/Qt/Tools/CMake_64/share/cmake-3.30/Modules/CMakeRCInformation.cmake \
 	D:/Qt/Tools/CMake_64/share/cmake-3.30/Modules/CMakeSystemSpecificInformation.cmake \
 	D:/Qt/Tools/CMake_64/share/cmake-3.30/Modules/CMakeSystemSpecificInitialize.cmake \
+	D:/Qt/Tools/CMake_64/share/cmake-3.30/Modules/CheckCSourceCompiles.cmake \
 	D:/Qt/Tools/CMake_64/share/cmake-3.30/Modules/CheckCXXCompilerFlag.cmake \
 	D:/Qt/Tools/CMake_64/share/cmake-3.30/Modules/CheckCXXSourceCompiles.cmake \
-	D:/Qt/Tools/CMake_64/share/cmake-3.30/Modules/CheckIncludeFileCXX.cmake \
+	D:/Qt/Tools/CMake_64/share/cmake-3.30/Modules/CheckIncludeFile.cmake \
 	D:/Qt/Tools/CMake_64/share/cmake-3.30/Modules/CheckLibraryExists.cmake \
 	D:/Qt/Tools/CMake_64/share/cmake-3.30/Modules/Compiler/CMakeCommonCompilerMacros.cmake \
+	D:/Qt/Tools/CMake_64/share/cmake-3.30/Modules/Compiler/GNU-C.cmake \
 	D:/Qt/Tools/CMake_64/share/cmake-3.30/Modules/Compiler/GNU-CXX.cmake \
 	D:/Qt/Tools/CMake_64/share/cmake-3.30/Modules/Compiler/GNU.cmake \
 	D:/Qt/Tools/CMake_64/share/cmake-3.30/Modules/FindPackageHandleStandardArgs.cmake \
@@ -357,6 +405,8 @@ weather_autogen/timestamp: \
 	D:/Qt/Tools/CMake_64/share/cmake-3.30/Modules/Internal/CheckCompilerFlag.cmake \
 	D:/Qt/Tools/CMake_64/share/cmake-3.30/Modules/Internal/CheckFlagCommonConfig.cmake \
 	D:/Qt/Tools/CMake_64/share/cmake-3.30/Modules/Internal/CheckSourceCompiles.cmake \
+	D:/Qt/Tools/CMake_64/share/cmake-3.30/Modules/Platform/Windows-GNU-C-ABI.cmake \
+	D:/Qt/Tools/CMake_64/share/cmake-3.30/Modules/Platform/Windows-GNU-C.cmake \
 	D:/Qt/Tools/CMake_64/share/cmake-3.30/Modules/Platform/Windows-GNU-CXX-ABI.cmake \
 	D:/Qt/Tools/CMake_64/share/cmake-3.30/Modules/Platform/Windows-GNU-CXX.cmake \
 	D:/Qt/Tools/CMake_64/share/cmake-3.30/Modules/Platform/Windows-GNU.cmake \
@@ -580,10 +630,11 @@ weather_autogen/timestamp: \
 	D:/project\ Qt/weather/CMakeLists.txt \
 	D:/project\ Qt/weather/build/Desktop_Qt_6_9_2_MinGW_64_bit-Debug/.qtc/package-manager/auto-setup.cmake \
 	D:/project\ Qt/weather/build/Desktop_Qt_6_9_2_MinGW_64_bit-Debug/.qtc/package-manager/maintenance_tool_provider.cmake \
+	D:/project\ Qt/weather/build/Desktop_Qt_6_9_2_MinGW_64_bit-Debug/CMakeFiles/3.30.5/CMakeCCompiler.cmake \
 	D:/project\ Qt/weather/build/Desktop_Qt_6_9_2_MinGW_64_bit-Debug/CMakeFiles/3.30.5/CMakeCXXCompiler.cmake \
 	D:/project\ Qt/weather/build/Desktop_Qt_6_9_2_MinGW_64_bit-Debug/CMakeFiles/3.30.5/CMakeRCCompiler.cmake \
 	D:/project\ Qt/weather/build/Desktop_Qt_6_9_2_MinGW_64_bit-Debug/CMakeFiles/3.30.5/CMakeSystem.cmake \
-	D:/project\ Qt/weather/build/Desktop_Qt_6_9_2_MinGW_64_bit-Debug/weather_autogen/moc_predefs.h \
+	D:/project\ Qt/weather/build/Desktop_Qt_6_9_2_MinGW_64_bit-Debug/WeatherAnalyzer_autogen/moc_predefs.h \
 	D:/project\ Qt/weather/main.cpp \
 	D:/project\ Qt/weather/mainwindow.cpp \
 	D:/project\ Qt/weather/mainwindow.h \

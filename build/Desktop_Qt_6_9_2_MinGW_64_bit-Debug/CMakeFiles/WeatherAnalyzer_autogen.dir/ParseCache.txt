@@ -374,7 +374,7 @@ D:/project Qt/weather/mainwindow.h
  mdp:D:/Qt/Tools/mingw1310_64/x86_64-w64-mingw32/include/time.h
  mdp:D:/Qt/Tools/mingw1310_64/x86_64-w64-mingw32/include/vadefs.h
  mdp:D:/Qt/Tools/mingw1310_64/x86_64-w64-mingw32/include/wchar.h
- mdp:D:/project Qt/weather/build/Desktop_Qt_6_9_2_MinGW_64_bit-Debug/weather_autogen/moc_predefs.h
+ mdp:D:/project Qt/weather/build/Desktop_Qt_6_9_2_MinGW_64_bit-Debug/WeatherAnalyzer_autogen/moc_predefs.h
  mdp:D:/project Qt/weather/mainwindow.h
 D:/project Qt/weather/main.cpp
 D:/project Qt/weather/mainwindow.cpp
