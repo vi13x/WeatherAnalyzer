@@ -49,6 +49,8 @@ private:
     QTabWidget *tabWidget;
     QWidget *dataTab;
     QWidget *chartsTab;
+    QWidget *botTgTab;
+
 
     // Графики
     QChartView *temperatureChartView;

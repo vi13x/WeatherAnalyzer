@@ -26,8 +26,8 @@
 #include <QChartView>
 #include <QLineSeries>
 #include <QValueAxis>
-
-
+#include <QClipboard>
+#include <QApplication>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -35,19 +35,55 @@ MainWindow::MainWindow(QWidget *parent)
     resize(1400, 900);
     setWindowTitle("🌤️ Анализатор погодных данных");
 
-
     tabWidget = new QTabWidget(this);
     setCentralWidget(tabWidget);
-
 
     dataTab = new QWidget;
     tabWidget->addTab(dataTab, "📋 Данные");
 
-
     chartsTab = new QWidget;
     tabWidget->addTab(chartsTab, "📊 Графики");
 
+    botTgTab = new QWidget;
+    tabWidget->addTab(botTgTab, "🤖 Бот");
 
+    // ------------------ Вкладка Telegram Bot ------------------
+    QVBoxLayout *botLayout = new QVBoxLayout(botTgTab);
+    botLayout->setAlignment(Qt::AlignCenter);
+
+    QLabel *botLabel = new QLabel("Для использования программы на телефоне перейдите в бота Telegram:");
+    botLabel->setStyleSheet("font-size: 14px; font-weight: bold; color: #2c3e50;");
+    botLabel->setAlignment(Qt::AlignCenter);
+
+    QHBoxLayout *botRowLayout = new QHBoxLayout;
+    QLabel *usernameLabel = new QLabel("@WeatherAnalyzer_bot"); // <- сюда поставь имя своего бота
+    usernameLabel->setStyleSheet("font-size: 16px; color: #2980b9; font-weight: bold;");
+
+    QPushButton *copyButton = new QPushButton("📋 Скопировать");
+    copyButton->setStyleSheet(R"(
+        QPushButton {
+            background-color: #3498db;
+            color: white;
+            font-weight: bold;
+            padding: 6px 12px;
+            border-radius: 6px;
+        }
+        QPushButton:hover { background-color: #2980b9; }
+    )");
+
+    botRowLayout->addWidget(usernameLabel);
+    botRowLayout->addWidget(copyButton);
+
+    botLayout->addWidget(botLabel);
+    botLayout->addLayout(botRowLayout);
+
+    connect(copyButton, &QPushButton::clicked, this, [=]() {
+        QClipboard *clipboard = QApplication::clipboard();
+        clipboard->setText(usernameLabel->text());
+        QMessageBox::information(this, "Скопировано", "Имя бота скопировано в буфер обмена!");
+    });
+
+    // ------------------ Стили и интерфейс для других вкладок ------------------
     this->setStyleSheet(R"(
         QMainWindow {
             background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
