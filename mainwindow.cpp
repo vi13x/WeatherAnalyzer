@@ -56,7 +56,7 @@ MainWindow::MainWindow(QWidget *parent)
     botLabel->setAlignment(Qt::AlignCenter);
 
     QHBoxLayout *botRowLayout = new QHBoxLayout;
-    QLabel *usernameLabel = new QLabel("@WeatherAnalyzer_bot");
+    QLabel *usernameLabel = new QLabel("@WeatherAnalyzer1_bot");
     usernameLabel->setStyleSheet("font-size: 16px; color: #2980b9; font-weight: bold;");
 
     QPushButton *copyButton = new QPushButton("📋 Скопировать");
