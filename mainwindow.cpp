@@ -47,7 +47,7 @@ MainWindow::MainWindow(QWidget *parent)
     botTgTab = new QWidget;
     tabWidget->addTab(botTgTab, "🤖 Бот");
 
-    // ------------------ Вкладка Telegram Bot ------------------
+
     QVBoxLayout *botLayout = new QVBoxLayout(botTgTab);
     botLayout->setAlignment(Qt::AlignCenter);
 
@@ -56,7 +56,7 @@ MainWindow::MainWindow(QWidget *parent)
     botLabel->setAlignment(Qt::AlignCenter);
 
     QHBoxLayout *botRowLayout = new QHBoxLayout;
-    QLabel *usernameLabel = new QLabel("@WeatherAnalyzer_bot"); // <- сюда поставь имя своего бота
+    QLabel *usernameLabel = new QLabel("@WeatherAnalyzer_bot");
     usernameLabel->setStyleSheet("font-size: 16px; color: #2980b9; font-weight: bold;");
 
     QPushButton *copyButton = new QPushButton("📋 Скопировать");
@@ -83,7 +83,6 @@ MainWindow::MainWindow(QWidget *parent)
         QMessageBox::information(this, "Скопировано", "Имя бота скопировано в буфер обмена!");
     });
 
-    // ------------------ Стили и интерфейс для других вкладок ------------------
     this->setStyleSheet(R"(
         QMainWindow {
             background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
