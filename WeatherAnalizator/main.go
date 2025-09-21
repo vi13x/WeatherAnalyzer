@@ -34,7 +34,7 @@ var userStates = make(map[int64]*UserState)
 var userData = make(map[int64][]WeatherData)
 
 func main() {
-	token := os.Getenv("TELEGRAM_BOT_TOKEN2")
+	token := os.Getenv("WEATHER_TOKEN")
 	if token == "" {
 		log.Fatal("TELEGRAM_BOT_TOKEN is required")
 	}
