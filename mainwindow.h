@@ -10,12 +10,15 @@ class QChartView;
 class QChart;
 class QLineSeries;
 class QValueAxis;
+class QDateTimeAxis;
 class QComboBox;
 class QDateTimeEdit;
 class QDoubleSpinBox;
 class QTableWidget;
 class QPlainTextEdit;
+class QListWidget;
 class QPushButton;
+class QCheckBox;
 
 struct Coord { double lat; double lon; };
 
@@ -29,45 +32,34 @@ public:
 
 private slots:
     void addRecord();
-    void analyzeData();
     void saveToJson();
     void loadFromJson();
     void updateCharts();
+    void analyzeData();
+    void toggleTheme();
+    void findMinMax();
 
 private:
     void initializeCities();
     void setupCharts();
-    void createTemperatureChart();
     void createRadiationChart();
-    void createHumidityChart();
-    void createWindChart();
-    void createPressureChart();
-    void createUVChart();
 
 
     // Указатели на UI элементы
     QTabWidget *tabWidget;
     QWidget *dataTab;
     QWidget *chartsTab;
-    QWidget *botTgTab;
 
 
     // Графики
-    QChartView *temperatureChartView;
     QChartView *radiationChartView;
-    QChartView *humidityChartView;
-    QChartView *windChartView;
-    QChartView *pressureChartView;
-    QChartView *uvChartView;
 
     QComboBox *cityComboBox;
     QDateTimeEdit *dateTimeEdit;
     QDoubleSpinBox *radiationSpin;
-    QDoubleSpinBox *temperatureSpin;
-    QDoubleSpinBox *humiditySpin;
-    QDoubleSpinBox *pressureSpin;
-    QDoubleSpinBox *windSpin;
-    QDoubleSpinBox *uvSpin;
+    QListWidget *cityOverlayList;
+    QComboBox *chartTypeCombo;
+    QCheckBox *showMinMaxCheck;
 
     QTableWidget *table;
     QPlainTextEdit *analysisText;
@@ -77,6 +69,10 @@ private:
     QPushButton *btnSave;
     QPushButton *btnLoad;
     QPushButton *btnUpdateCharts;
+    QPushButton *btnThemeToggle;
+    QPushButton *btnSelectAllCities;
+    QPushButton *btnClearAllCities;
+    QPushButton *btnFindMinMax;
 
     QMap<QString, Coord> cityCoords;
 };

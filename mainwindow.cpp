@@ -22,12 +22,23 @@
 #include <QDoubleSpinBox>
 #include <QTableWidget>
 #include <QPlainTextEdit>
+#include <QListWidget>
 #include <QPushButton>
 #include <QChartView>
 #include <QLineSeries>
+#include <QSplineSeries>
+#include <QScatterSeries>
 #include <QValueAxis>
+#include <QDateTimeAxis>
+#include <QCategoryAxis>
+#include <QBarSet>
+#include <QBarSeries>
+#include <QHorizontalBarSeries>
+#include <QBarCategoryAxis>
+#include <QCheckBox>
 #include <QClipboard>
 #include <QApplication>
+#include <limits>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -42,46 +53,10 @@ MainWindow::MainWindow(QWidget *parent)
     tabWidget->addTab(dataTab, "📋 Данные");
 
     chartsTab = new QWidget;
-    tabWidget->addTab(chartsTab, "📊 Графики");
-
-    botTgTab = new QWidget;
-    tabWidget->addTab(botTgTab, "🤖 Бот");
+    tabWidget->addTab(chartsTab, "☢️ Радиация");
 
 
-    QVBoxLayout *botLayout = new QVBoxLayout(botTgTab);
-    botLayout->setAlignment(Qt::AlignCenter);
-
-    QLabel *botLabel = new QLabel("Для использования программы на телефоне перейдите в бота Telegram:");
-    botLabel->setStyleSheet("font-size: 14px; font-weight: bold; color: #2c3e50;");
-    botLabel->setAlignment(Qt::AlignCenter);
-
-    QHBoxLayout *botRowLayout = new QHBoxLayout;
-    QLabel *usernameLabel = new QLabel("@WeatherAnalyzer1_bot");
-    usernameLabel->setStyleSheet("font-size: 16px; color: #2980b9; font-weight: bold;");
-
-    QPushButton *copyButton = new QPushButton("📋 Скопировать");
-    copyButton->setStyleSheet(R"(
-        QPushButton {
-            background-color: #3498db;
-            color: white;
-            font-weight: bold;
-            padding: 6px 12px;
-            border-radius: 6px;
-        }
-        QPushButton:hover { background-color: #2980b9; }
-    )");
-
-    botRowLayout->addWidget(usernameLabel);
-    botRowLayout->addWidget(copyButton);
-
-    botLayout->addWidget(botLabel);
-    botLayout->addLayout(botRowLayout);
-
-    connect(copyButton, &QPushButton::clicked, this, [=]() {
-        QClipboard *clipboard = QApplication::clipboard();
-        clipboard->setText(usernameLabel->text());
-        QMessageBox::information(this, "Скопировано", "Имя бота скопировано в буфер обмена!");
-    });
+    // Бот-вкладка удалена — фокус только на данных и графике радиации
 
     this->setStyleSheet(R"(
         QMainWindow {
@@ -132,7 +107,7 @@ MainWindow::MainWindow(QWidget *parent)
     leftLayout->setContentsMargins(15, 15, 15, 15);
 
 
-    QGroupBox *inputGroup = new QGroupBox("📝 Ввод данных измерений");
+    QGroupBox *inputGroup = new QGroupBox("📝 Ввод данных радиации");
 
     QFormLayout *formLayout = new QFormLayout;
     formLayout->setSpacing(12);
@@ -170,19 +145,24 @@ MainWindow::MainWindow(QWidget *parent)
             padding: 8px;
             border: 2px solid #bdc3c7;
             border-radius: 6px;
-            background: white;
+            background: #ffffff;
+            color: #2c3e50;
             font-size: 11px;
         }
-        QDateTimeEdit:hover {
-            border-color: #3498db;
-        }
+        QDateTimeEdit:hover { border-color: #3498db; }
+        QAbstractSpinBox { background: #ffffff; color: #2c3e50; }
+        QCalendarWidget QWidget { background-color: #ffffff; color: #2c3e50; }
+        QCalendarWidget QToolButton { color: #2c3e50; background: #ecf0f1; border: none; border-radius: 4px; padding: 4px; }
+        QCalendarWidget QMenu { background: #ffffff; color: #2c3e50; }
+        QCalendarWidget QSpinBox { background: #ffffff; color: #2c3e50; }
+        QCalendarWidget QAbstractItemView:enabled { background: #ffffff; color: #2c3e50; selection-background-color: #3498db; selection-color: #ffffff; }
     )");
     formLayout->addRow("🕐 Дата/время:", dateTimeEdit);
 
     radiationSpin = new QDoubleSpinBox;
     radiationSpin->setRange(0, 20000);
     radiationSpin->setDecimals(2);
-    radiationSpin->setSuffix(" Вт/м²");
+    radiationSpin->setSuffix("мкР/ч");
     radiationSpin->setStyleSheet(R"(
         QDoubleSpinBox {
             padding: 8px;
@@ -195,103 +175,13 @@ MainWindow::MainWindow(QWidget *parent)
             border-color: #3498db;
         }
     )");
-    formLayout->addRow("☀️ Радиация:", radiationSpin);
-
-    temperatureSpin = new QDoubleSpinBox;
-    temperatureSpin->setRange(-100, 100);
-    temperatureSpin->setDecimals(2);
-    temperatureSpin->setSuffix(" °C");
-    temperatureSpin->setStyleSheet(R"(
-        QDoubleSpinBox {
-            padding: 8px;
-            border: 2px solid #bdc3c7;
-            border-radius: 6px;
-            background: white;
-            font-size: 11px;
-        }
-        QDoubleSpinBox:hover {
-            border-color: #3498db;
-        }
-    )");
-    formLayout->addRow("🌡️ Температура:", temperatureSpin);
-
-    humiditySpin = new QDoubleSpinBox;
-    humiditySpin->setRange(0, 100);
-    humiditySpin->setDecimals(2);
-    humiditySpin->setSuffix(" %");
-    humiditySpin->setStyleSheet(R"(
-        QDoubleSpinBox {
-            padding: 8px;
-            border: 2px solid #bdc3c7;
-            border-radius: 6px;
-            background: white;
-            font-size: 11px;
-        }
-        QDoubleSpinBox:hover {
-            border-color: #3498db;
-        }
-    )");
-    formLayout->addRow("💧 Влажность:", humiditySpin);
-
-    pressureSpin = new QDoubleSpinBox;
-    pressureSpin->setRange(300, 1200);
-    pressureSpin->setDecimals(2);
-    pressureSpin->setSuffix(" гПа");
-    pressureSpin->setStyleSheet(R"(
-        QDoubleSpinBox {
-            padding: 8px;
-            border: 2px solid #bdc3c7;
-            border-radius: 6px;
-            background: white;
-            font-size: 11px;
-        }
-        QDoubleSpinBox:hover {
-            border-color: #3498db;
-        }
-    )");
-    formLayout->addRow("📊 Давление:", pressureSpin);
-
-    windSpin = new QDoubleSpinBox;
-    windSpin->setRange(0, 200);
-    windSpin->setDecimals(2);
-    windSpin->setSuffix(" м/с");
-    windSpin->setStyleSheet(R"(
-        QDoubleSpinBox {
-            padding: 8px;
-            border: 2px solid #bdc3c7;
-            border-radius: 6px;
-            background: white;
-            font-size: 11px;
-        }
-        QDoubleSpinBox:hover {
-            border-color: #3498db;
-        }
-    )");
-    formLayout->addRow("🌬️ Ветер:", windSpin);
-
-    uvSpin = new QDoubleSpinBox;
-    uvSpin->setRange(0, 30);
-    uvSpin->setDecimals(2);
-    uvSpin->setStyleSheet(R"(
-        QDoubleSpinBox {
-            padding: 8px;
-            border: 2px solid #bdc3c7;
-            border-radius: 6px;
-            background: white;
-            font-size: 11px;
-        }
-        QDoubleSpinBox:hover {
-            border-color: #3498db;
-        }
-    )");
-    formLayout->addRow("🟣 УФ-индекс:", uvSpin);
+    formLayout->addRow("☢️ Радиация:", radiationSpin);
 
     inputGroup->setLayout(formLayout);
     leftLayout->addWidget(inputGroup);
 
 
     btnAdd = new QPushButton("➕ Добавить запись");
-    btnAnalyze = new QPushButton("📊 Анализировать данные");
     btnSave = new QPushButton("💾 Сохранить JSON");
     btnLoad = new QPushButton("📂 Загрузить JSON");
 
@@ -322,14 +212,6 @@ MainWindow::MainWindow(QWidget *parent)
         }
     )");
 
-    btnAnalyze->setStyleSheet(buttonBaseStyle + R"(
-        QPushButton {
-            background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
-                stop: 0 #2980b9, stop: 1 #3498db);
-            color: white;
-        }
-    )");
-
     btnSave->setStyleSheet(buttonBaseStyle + R"(
         QPushButton {
             background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
@@ -347,11 +229,20 @@ MainWindow::MainWindow(QWidget *parent)
     )");
 
     connect(btnAdd, &QPushButton::clicked, this, &MainWindow::addRecord);
-    connect(btnAnalyze, &QPushButton::clicked, this, &MainWindow::analyzeData);
     connect(btnSave, &QPushButton::clicked, this, &MainWindow::saveToJson);
     connect(btnLoad, &QPushButton::clicked, this, &MainWindow::loadFromJson);
 
     leftLayout->addWidget(btnAdd);
+    btnAnalyze = new QPushButton("📊 Анализировать данные");
+    btnAnalyze->setStyleSheet(buttonBaseStyle + R"(
+        QPushButton {
+            background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
+                stop: 0 #2980b9, stop: 1 #3498db);
+            color: white;
+        }
+    )");
+    connect(btnAnalyze, &QPushButton::clicked, this, &MainWindow::analyzeData);
+
     leftLayout->addWidget(btnAnalyze);
     leftLayout->addWidget(btnSave);
     leftLayout->addWidget(btnLoad);
@@ -362,12 +253,12 @@ MainWindow::MainWindow(QWidget *parent)
     rightLayout->setSpacing(15);
 
 
-    QGroupBox *tableGroup = new QGroupBox("📋 Таблица измерений");
+    QGroupBox *tableGroup = new QGroupBox("📋 Таблица измерений радиации");
 
     QVBoxLayout *tableLayout = new QVBoxLayout;
 
-    table = new QTableWidget(0, 8);
-    QStringList headers = {"🏙️ Город", "🕐 Дата/время", "☀️ Радиация", "🌡️ Темп.", "💧 Влажность", "📊 Давление", "🌬️ Ветер", "🟣 UV"};
+    table = new QTableWidget(0, 3);
+    QStringList headers = {"🏙️ Город", "🕐 Дата/время", "☢️ Радиация"};
     table->setHorizontalHeaderLabels(headers);
     table->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
     table->setAlternatingRowColors(true);
@@ -416,26 +307,24 @@ MainWindow::MainWindow(QWidget *parent)
     rightLayout->addWidget(tableGroup, 7);
 
 
+    // Блок анализа восстановлен
     QGroupBox *analysisBox = new QGroupBox("📊 Результаты анализа");
-
     QVBoxLayout *analysisLayout = new QVBoxLayout;
     analysisText = new QPlainTextEdit;
     analysisText->setReadOnly(true);
     analysisText->setStyleSheet(R"(
         QPlainTextEdit {
-            background-color: #f8f9fa;
-            border: 2px solid #dfe6e9;
+            background-color: #0b132b;
+            color: #e0e1dd;
+            border: 2px solid #1c2541;
             border-radius: 8px;
             padding: 12px;
             font-family: 'Consolas', 'Monospace';
-            font-size: 11px;
-            color: #2c3e50;
+            font-size: 12px;
         }
-        QPlainTextEdit:focus {
-            border-color: #3498db;
-        }
+        QPlainTextEdit:focus { border-color: #3a506b; }
     )");
-    analysisText->setPlaceholderText("📈 Здесь будут отображаться результаты анализа данных...");
+    analysisText->setPlaceholderText("📈 Нажмите \"Анализировать данные\" для расчётов по текущему городу...");
 
     analysisLayout->addWidget(analysisText);
     analysisBox->setLayout(analysisLayout);
@@ -452,7 +341,7 @@ MainWindow::MainWindow(QWidget *parent)
 
 
     QHBoxLayout *chartsButtonLayout = new QHBoxLayout;
-    btnUpdateCharts = new QPushButton("🔄 Обновить графики");
+    btnUpdateCharts = new QPushButton("🔄 Обновить график");
     btnUpdateCharts->setStyleSheet(buttonBaseStyle + R"(
         QPushButton {
             background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
@@ -462,9 +351,42 @@ MainWindow::MainWindow(QWidget *parent)
     )");
     connect(btnUpdateCharts, &QPushButton::clicked, this, &MainWindow::updateCharts);
 
+    btnThemeToggle = new QPushButton("⚫/⚪ Тема");
+    btnThemeToggle->setStyleSheet(R"(
+        QPushButton { padding: 8px 12px; border-radius: 6px; background: #2c3e50; color: #ffffff; font-weight: bold; }
+        QPushButton:hover { background: #1f2d3a; }
+    )");
+    connect(btnThemeToggle, &QPushButton::clicked, this, &MainWindow::toggleTheme);
+    chartsButtonLayout->addWidget(btnThemeToggle);
+    chartsButtonLayout->addStretch();
     chartsButtonLayout->addWidget(btnUpdateCharts);
     chartsButtonLayout->addStretch();
     chartsLayout->addLayout(chartsButtonLayout);
+
+    // Боковая панель управления типом графика и линиями MIN/MAX
+    QHBoxLayout *chartAndControls = new QHBoxLayout;
+    QWidget *controlsPanel = new QWidget;
+    controlsPanel->setFixedWidth(260);
+    controlsPanel->setStyleSheet(R"(
+        QWidget { background: #ffffff; border: 2px solid #e0e6ed; border-radius: 8px; }
+    )");
+    QVBoxLayout *controlsLayout = new QVBoxLayout(controlsPanel);
+    QLabel *chartTypeLbl = new QLabel("Тип графика:");
+    chartTypeCombo = new QComboBox;
+    chartTypeCombo->addItems({"Точки+линии", "Сглаженная"});
+    chartTypeCombo->setCurrentIndex(0);
+    controlsLayout->addWidget(chartTypeLbl);
+    controlsLayout->addWidget(chartTypeCombo);
+
+    showMinMaxCheck = new QCheckBox("Показывать линии MIN/MAX");
+    controlsLayout->addWidget(showMinMaxCheck);
+    btnFindMinMax = new QPushButton("Найти MIN/MAX и добавить линии");
+    controlsLayout->addWidget(btnFindMinMax);
+    connect(btnFindMinMax, &QPushButton::clicked, this, &MainWindow::findMinMax);
+
+    controlsLayout->addStretch();
+
+    chartAndControls->addWidget(controlsPanel);
 
 
     QScrollArea *scrollArea = new QScrollArea;
@@ -480,66 +402,65 @@ MainWindow::MainWindow(QWidget *parent)
     QVBoxLayout *chartsContainerLayout = new QVBoxLayout(chartsContainer);
     chartsContainerLayout->setSpacing(20);
 
-
-    temperatureChartView = new QChartView;
-    radiationChartView = new QChartView;
-    humidityChartView = new QChartView;
-    windChartView = new QChartView;
-    pressureChartView = new QChartView;
-    uvChartView = new QChartView;
-
-
-    QSize chartSize(600, 300);
-    temperatureChartView->setMinimumSize(chartSize);
-    radiationChartView->setMinimumSize(chartSize);
-    humidityChartView->setMinimumSize(chartSize);
-    windChartView->setMinimumSize(chartSize);
-    pressureChartView->setMinimumSize(chartSize);
-    uvChartView->setMinimumSize(chartSize);
-
-    temperatureChartView->setRenderHint(QPainter::Antialiasing);
-    radiationChartView->setRenderHint(QPainter::Antialiasing);
-    humidityChartView->setRenderHint(QPainter::Antialiasing);
-    windChartView->setRenderHint(QPainter::Antialiasing);
-    pressureChartView->setRenderHint(QPainter::Antialiasing);
-    uvChartView->setRenderHint(QPainter::Antialiasing);
-
-
-    QLabel *tempLabel = new QLabel("🌡️ Температура (°C)");
-    tempLabel->setStyleSheet("QLabel { font-weight: bold; font-size: 14px; color: #2c3e50; }");
-    chartsContainerLayout->addWidget(tempLabel);
-    chartsContainerLayout->addWidget(temperatureChartView);
-
-    QLabel *radLabel = new QLabel("☀️ Солнечная радиация (Вт/м²)");
-    radLabel->setStyleSheet("QLabel { font-weight: bold; font-size: 14px; color: #2c3e50; }");
+    QLabel *radLabel = new QLabel("☢️ Радиация (мкР/ч)");
+    radLabel->setStyleSheet("QLabel { font-weight: bold; font-size: 16px; color: #2c3e50; }");
     chartsContainerLayout->addWidget(radLabel);
-    chartsContainerLayout->addWidget(radiationChartView);
 
-    QLabel *humLabel = new QLabel("💧 Влажность (%)");
-    humLabel->setStyleSheet("QLabel { font-weight: bold; font-size: 14px; color: #2c3e50; }");
-    chartsContainerLayout->addWidget(humLabel);
-    chartsContainerLayout->addWidget(humidityChartView);
+    radiationChartView = new QChartView;
+    QSize chartSize(900, 420);
+    radiationChartView->setMinimumSize(chartSize);
+    radiationChartView->setRenderHint(QPainter::Antialiasing);
+    // Вставляем график вместе с боковой панелью управления
+    QHBoxLayout *chartRow = new QHBoxLayout;
+    chartRow->addLayout(chartAndControls);
+    chartRow->addWidget(radiationChartView, 1);
+    chartsContainerLayout->addLayout(chartRow);
 
-    QLabel *windLabel = new QLabel("🌬️ Скорость ветра (м/с)");
-    windLabel->setStyleSheet("QLabel { font-weight: bold; font-size: 14px; color: #2c3e50; }");
-    chartsContainerLayout->addWidget(windLabel);
-    chartsContainerLayout->addWidget(windChartView);
-
-    QLabel *pressLabel = new QLabel("📊 Давление (гПа)");
-    pressLabel->setStyleSheet("QLabel { font-weight: bold; font-size: 14px; color: #2c3e50; }");
-    chartsContainerLayout->addWidget(pressLabel);
-    chartsContainerLayout->addWidget(pressureChartView);
-
-    QLabel *uvLabel = new QLabel("🟣 УФ-индекс");
-    uvLabel->setStyleSheet("QLabel { font-weight: bold; font-size: 14px; color: #2c3e50; }");
-    chartsContainerLayout->addWidget(uvLabel);
-    chartsContainerLayout->addWidget(uvChartView);
+    // Список городов для наложения серий (чекбокс-лист)
+    QGroupBox *overlayGroup = new QGroupBox("🔀 Наложение графиков по городам");
+    QVBoxLayout *overlayLayout = new QVBoxLayout;
+    cityOverlayList = new QListWidget;
+    cityOverlayList->setSelectionMode(QAbstractItemView::NoSelection);
+    cityOverlayList->setStyleSheet(R"(
+        QListWidget { border: 2px solid #dfe6e9; border-radius: 8px; }
+        QListWidget::item { padding: 6px; }
+        QListWidget::indicator { width: 16px; height: 16px; }
+    )");
+    overlayLayout->addWidget(new QLabel("Выберите города для наложения:"));
+    overlayLayout->addWidget(cityOverlayList);
+    QHBoxLayout *overlayBtns = new QHBoxLayout;
+    btnSelectAllCities = new QPushButton("Выбрать все");
+    btnClearAllCities = new QPushButton("Снять все");
+    overlayBtns->addWidget(btnSelectAllCities);
+    overlayBtns->addWidget(btnClearAllCities);
+    overlayBtns->addStretch();
+    overlayGroup->setLayout(overlayLayout);
+    overlayLayout->addLayout(overlayBtns);
+    chartsContainerLayout->addWidget(overlayGroup);
 
     scrollArea->setWidget(chartsContainer);
     chartsLayout->addWidget(scrollArea);
 
 
     setupCharts();
+
+    // Заполнение списка городов для наложения (чекбоксы)
+    for (int i = 0; i < cityComboBox->count(); ++i) {
+        QListWidgetItem *item = new QListWidgetItem(cityComboBox->itemText(i));
+        item->setFlags(item->flags() | Qt::ItemIsUserCheckable);
+        item->setCheckState(Qt::Unchecked);
+        cityOverlayList->addItem(item);
+    }
+    connect(btnSelectAllCities, &QPushButton::clicked, this, [this]() {
+        for (int i = 0; i < cityOverlayList->count(); ++i) {
+            cityOverlayList->item(i)->setCheckState(Qt::Checked);
+        }
+    });
+    connect(btnClearAllCities, &QPushButton::clicked, this, [this]() {
+        for (int i = 0; i < cityOverlayList->count(); ++i) {
+            cityOverlayList->item(i)->setCheckState(Qt::Unchecked);
+        }
+    });
 
 
     statusBar()->setStyleSheet(R"(
@@ -551,7 +472,7 @@ MainWindow::MainWindow(QWidget *parent)
             padding: 5px;
         }
     )");
-    statusBar()->showMessage("✅ Готов к работе. Выберите город для начала.");
+    statusBar()->showMessage("✅ Готов к работе. Добавьте записи и постройте график.");
 }
 
 
@@ -596,11 +517,6 @@ void MainWindow::addRecord()
     table->setItem(row, 0, new QTableWidgetItem(city));
     table->setItem(row, 1, new QTableWidgetItem(dateTimeEdit->dateTime().toString("yyyy-MM-dd HH:mm")));
     table->setItem(row, 2, new QTableWidgetItem(QString::number(radiationSpin->value(), 'f', 2)));
-    table->setItem(row, 3, new QTableWidgetItem(QString::number(temperatureSpin->value(), 'f', 2)));
-    table->setItem(row, 4, new QTableWidgetItem(QString::number(humiditySpin->value(), 'f', 2)));
-    table->setItem(row, 5, new QTableWidgetItem(QString::number(pressureSpin->value(), 'f', 2)));
-    table->setItem(row, 6, new QTableWidgetItem(QString::number(windSpin->value(), 'f', 2)));
-    table->setItem(row, 7, new QTableWidgetItem(QString::number(uvSpin->value(), 'f', 2)));
 
     statusBar()->showMessage(QString("✅ Добавлена запись для города %1").arg(city), 3000);
 }
@@ -616,29 +532,15 @@ void MainWindow::analyzeData()
         return;
     }
 
-
     QString currentCity = cityComboBox->currentText();
 
-    QVector<double> temps; temps.reserve(rows);
     QVector<double> rads; rads.reserve(rows);
-    QVector<double> uvs; uvs.reserve(rows);
-    QVector<double> humidities; humidities.reserve(rows);
-    QVector<double> pressures; pressures.reserve(rows);
-    QVector<double> winds; winds.reserve(rows);
-
     int cityRecordCount = 0;
 
     for (int i = 0; i < rows; ++i) {
         QString recordCity = table->item(i, 0)->text();
-
-
         if (recordCity == currentCity) {
-            temps.append(table->item(i, 3)->text().toDouble());
             rads.append(table->item(i, 2)->text().toDouble());
-            uvs.append(table->item(i, 7)->text().toDouble());
-            humidities.append(table->item(i, 4)->text().toDouble());
-            pressures.append(table->item(i, 5)->text().toDouble());
-            winds.append(table->item(i, 6)->text().toDouble());
             cityRecordCount++;
         }
     }
@@ -655,21 +557,18 @@ void MainWindow::analyzeData()
         for (double x : v) s += x;
         return s / v.size();
     };
-
     auto max = [](const QVector<double>& v)->double {
         if (v.isEmpty()) return 0.0;
         double m = v[0];
         for (double x : v) if (x > m) m = x;
         return m;
     };
-
     auto min = [](const QVector<double>& v)->double {
         if (v.isEmpty()) return 0.0;
         double m = v[0];
         for (double x : v) if (x < m) m = x;
         return m;
     };
-
     auto stddev = [&](const QVector<double>& v)->double {
         if (v.isEmpty()) return 0.0;
         double m = mean(v);
@@ -679,39 +578,16 @@ void MainWindow::analyzeData()
     };
 
     QString result;
-    result += QString("📊 АНАЛИЗ ПОГОДНЫХ ДАННЫХ ДЛЯ %1\n").arg(currentCity.toUpper());
-    result += QString("══════════════════════════════════\n\n");
+    result += QString("📊 АНАЛИЗ РАДИАЦИИ ДЛЯ %1\n").arg(currentCity.toUpper());
+    result += QString("═══════════════════════════════\n\n");
     result += QString("🏙️  Город: %1\n").arg(currentCity);
     result += QString("📈 Количество записей: %1\n\n").arg(cityRecordCount);
 
-    result += QString("🌡️  ТЕМПЕРАТУРА:\n");
-    result += QString("   • Средняя: %1 °C\n").arg(mean(temps), 0, 'f', 2);
-    result += QString("   • Минимальная: %1 °C\n").arg(min(temps), 0, 'f', 2);
-    result += QString("   • Максимальная: %1 °C\n").arg(max(temps), 0, 'f', 2);
-    result += QString("   • Стандартное отклонение: %1\n\n").arg(stddev(temps), 0, 'f', 2);
-
-    result += QString("☀️  СОЛНЕЧНАЯ РАДИАЦИЯ:\n");
-    result += QString("   • Средняя: %1 Вт/м²\n").arg(mean(rads), 0, 'f', 2);
-    result += QString("   • Минимальная: %1 Вт/м²\n").arg(min(rads), 0, 'f', 2);
-    result += QString("   • Максимальная: %1 Вт/м²\n").arg(max(rads), 0, 'f', 2);
-    result += QString("   • Стандартное отклонение: %1\n\n").arg(stddev(rads), 0, 'f', 2);
-
-    result += QString("🟣 УФ-ИНДЕКС:\n");
-    result += QString("   • Средний: %1\n").arg(mean(uvs), 0, 'f', 2);
-    result += QString("   • Минимальный: %1\n").arg(min(uvs), 0, 'f', 2);
-    result += QString("   • Максимальный: %1\n").arg(max(uvs), 0, 'f', 2);
-    result += QString("   • Стандартное отклонение: %1\n\n").arg(stddev(uvs), 0, 'f', 2);
-
-    result += QString("💧 ВЛАЖНОСТЬ:\n");
-    result += QString("   • Средняя: %1%%\n").arg(mean(humidities), 0, 'f', 2);
-    result += QString("   • Минимальная: %1%%\n").arg(min(humidities), 0, 'f', 2);
-    result += QString("   • Максимальная: %1%%\n").arg(max(humidities), 0, 'f', 2);
-    result += QString("   • Стандартное отклонение: %1\n\n").arg(stddev(humidities), 0, 'f', 2);
-
-    result += QString("🌬️  ВЕТЕР:\n");
-    result += QString("   • Средняя скорость: %1 м/с\n").arg(mean(winds), 0, 'f', 2);
-    result += QString("   • Минимальная: %1 м/с\n").arg(min(winds), 0, 'f', 2);
-    result += QString("   • Максимальная: %1 м/с\n").arg(max(winds), 0, 'f', 2);
+    result += QString("☢️  РАДИАЦИЯ (мкР/ч):\n");
+    result += QString("   • Средняя: %1\n").arg(mean(rads), 0, 'f', 2);
+    result += QString("   • Минимальная: %1\n").arg(min(rads), 0, 'f', 2);
+    result += QString("   • Максимальная: %1\n").arg(max(rads), 0, 'f', 2);
+    result += QString("   • Стандартное отклонение: %1\n").arg(stddev(rads), 0, 'f', 2);
 
     analysisText->setPlainText(result);
     statusBar()->showMessage(QString("Анализ завершен для города %1. Обработано %2 записей").arg(currentCity).arg(cityRecordCount), 5000);
@@ -735,11 +611,6 @@ void MainWindow::saveToJson()
         obj["city"] = table->item(i, 0)->text();
         obj["datetime"] = table->item(i, 1)->text();
         obj["radiation"] = table->item(i, 2)->text().toDouble();
-        obj["temperature"] = table->item(i, 3)->text().toDouble();
-        obj["humidity"] = table->item(i, 4)->text().toDouble();
-        obj["pressure"] = table->item(i, 5)->text().toDouble();
-        obj["wind"] = table->item(i, 6)->text().toDouble();
-        obj["uv"] = table->item(i, 7)->text().toDouble();
         records.append(obj);
     }
 
@@ -790,11 +661,6 @@ void MainWindow::loadFromJson()
         table->setItem(row, 0, new QTableWidgetItem(obj.value("city").toString()));
         table->setItem(row, 1, new QTableWidgetItem(obj.value("datetime").toString()));
         table->setItem(row, 2, new QTableWidgetItem(QString::number(obj.value("radiation").toDouble(), 'f', 2)));
-        table->setItem(row, 3, new QTableWidgetItem(QString::number(obj.value("temperature").toDouble(), 'f', 2)));
-        table->setItem(row, 4, new QTableWidgetItem(QString::number(obj.value("humidity").toDouble(), 'f', 2)));
-        table->setItem(row, 5, new QTableWidgetItem(QString::number(obj.value("pressure").toDouble(), 'f', 2)));
-        table->setItem(row, 6, new QTableWidgetItem(QString::number(obj.value("wind").toDouble(), 'f', 2)));
-        table->setItem(row, 7, new QTableWidgetItem(QString::number(obj.value("uv").toDouble(), 'f', 2)));
     }
 
     QMessageBox::information(this, "Успех", QString("Загружено %1 записей из файла:\n%2").arg(records.size()).arg(fileName));
@@ -804,186 +670,265 @@ void MainWindow::loadFromJson()
 
 void MainWindow::setupCharts()
 {
-    createTemperatureChart();
     createRadiationChart();
-    createHumidityChart();
-    createWindChart();
-    createPressureChart();
-    createUVChart();
-}
-
-void MainWindow::createTemperatureChart()
-{
-    QChart *chart = new QChart();
-    chart->setTitle("🌡️ Температура");
-    chart->setAnimationOptions(QChart::SeriesAnimations);
-    chart->setTheme(QChart::ChartThemeLight);
-
-    QLineSeries *series = new QLineSeries();
-    series->setName("Температура (°C)");
-
-    chart->addSeries(series);
-    chart->createDefaultAxes();
-
-    temperatureChartView->setChart(chart);
 }
 
 void MainWindow::createRadiationChart()
 {
     QChart *chart = new QChart();
-    chart->setTitle("☀️ Солнечная радиация");
+    chart->setTitle("☢️ Радиация по городам");
     chart->setAnimationOptions(QChart::SeriesAnimations);
     chart->setTheme(QChart::ChartThemeLight);
+    chart->legend()->setVisible(true);
+    chart->legend()->setAlignment(Qt::AlignBottom);
+    QFont legendFont; legendFont.setPointSize(10); legendFont.setBold(true);
+    chart->legend()->setFont(legendFont);
+    chart->setBackgroundBrush(QBrush(QColor(255,255,255)));
+    chart->setPlotAreaBackgroundVisible(true);
+    chart->setPlotAreaBackgroundBrush(QLinearGradient(0,0,0,1));
 
-    QLineSeries *series = new QLineSeries();
-    series->setName("Радиация (Вт/м²)");
+    // Индексная ось X без привязки к датам
+    auto *axisX = new QValueAxis;
+    axisX->setTitleText("Индекс точки");
+    axisX->setLabelFormat("%.0f");
+    axisX->setTickCount(8);
+    QFont axisFont; axisFont.setPointSize(9);
+    axisX->setLabelsFont(axisFont);
 
-    chart->addSeries(series);
-    chart->createDefaultAxes();
+    auto *axisY = new QValueAxis;
+    axisY->setTitleText("мкР/ч");
+    axisY->setLabelFormat("%.0f");
+    axisY->setTickCount(7);
+    axisY->setMinorTickCount(1);
+    axisY->setGridLineColor(QColor("#dfe6e9"));
+    axisY->setGridLinePen(QPen(QColor("#dfe6e9"), 1, Qt::SolidLine));
+    axisY->setMinorGridLineColor(QColor("#ecf0f1"));
+    axisY->setMinorGridLinePen(QPen(QColor("#ecf0f1"), 1, Qt::DashLine));
+    axisY->setLabelsFont(axisFont);
+
+    chart->addAxis(axisX, Qt::AlignBottom);
+    chart->addAxis(axisY, Qt::AlignLeft);
 
     radiationChartView->setChart(chart);
-}
-
-void MainWindow::createHumidityChart()
-{
-    QChart *chart = new QChart();
-    chart->setTitle("💧 Влажность");
-    chart->setAnimationOptions(QChart::SeriesAnimations);
-    chart->setTheme(QChart::ChartThemeLight);
-
-    QLineSeries *series = new QLineSeries();
-    series->setName("Влажность (%)");
-
-    chart->addSeries(series);
-    chart->createDefaultAxes();
-
-    humidityChartView->setChart(chart);
-}
-
-void MainWindow::createWindChart()
-{
-    QChart *chart = new QChart();
-    chart->setTitle("🌬️ Скорость ветра");
-    chart->setAnimationOptions(QChart::SeriesAnimations);
-    chart->setTheme(QChart::ChartThemeLight);
-
-    QLineSeries *series = new QLineSeries();
-    series->setName("Ветер (м/с)");
-
-    chart->addSeries(series);
-    chart->createDefaultAxes();
-
-    windChartView->setChart(chart);
-}
-
-void MainWindow::createPressureChart()
-{
-    QChart *chart = new QChart();
-    chart->setTitle("📊 Давление");
-    chart->setAnimationOptions(QChart::SeriesAnimations);
-    chart->setTheme(QChart::ChartThemeLight);
-
-    QLineSeries *series = new QLineSeries();
-    series->setName("Давление (гПа)");
-
-    chart->addSeries(series);
-    chart->createDefaultAxes();
-
-    pressureChartView->setChart(chart);
-}
-
-void MainWindow::createUVChart()
-{
-    QChart *chart = new QChart();
-    chart->setTitle("🟣 УФ-индекс");
-    chart->setAnimationOptions(QChart::SeriesAnimations);
-    chart->setTheme(QChart::ChartThemeLight);
-
-    QLineSeries *series = new QLineSeries();
-    series->setName("УФ-индекс");
-
-    chart->addSeries(series);
-    chart->createDefaultAxes();
-
-    uvChartView->setChart(chart);
+    radiationChartView->setRubberBand(QChartView::RectangleRubberBand);
 }
 
 void MainWindow::updateCharts()
 {
-    QString currentCity = cityComboBox->currentText();
-
-    QVector<double> temperatures, radiations, humidities, winds, pressures, uvs;
-
-    int rowCount = table->rowCount();
-    for (int i = 0; i < rowCount; ++i) {
-        if (table->item(i, 0)->text() == currentCity) {
-            temperatures.append(table->item(i, 3)->text().toDouble());
-            radiations.append(table->item(i, 2)->text().toDouble());
-            humidities.append(table->item(i, 4)->text().toDouble());
-            winds.append(table->item(i, 6)->text().toDouble());
-            pressures.append(table->item(i, 5)->text().toDouble());
-            uvs.append(table->item(i, 7)->text().toDouble());
-        }
+    // Собираем выбранные города для наложения
+    QList<QString> selectedCities;
+    for (int i = 0; i < cityOverlayList->count(); ++i) {
+        QListWidgetItem *item = cityOverlayList->item(i);
+        if (item->checkState() == Qt::Checked) selectedCities.append(item->text());
+    }
+    if (selectedCities.isEmpty()) {
+        // Если города не выбраны, строим для текущего
+        selectedCities = { cityComboBox->currentText() };
     }
 
-    if (temperatures.isEmpty()) {
-        QMessageBox::information(this, "Нет данных", "Нет данных для построения графиков");
+    QChart *chart = radiationChartView->chart();
+    chart->removeAllSeries();
+
+    QValueAxis *axisX = nullptr;
+    QValueAxis *axisY = nullptr;
+    {
+        const auto axesX = chart->axes(Qt::Horizontal);
+        for (QAbstractAxis *ax : axesX) {
+            axisX = qobject_cast<QValueAxis*>(ax);
+            if (axisX) break;
+        }
+        const auto axesY = chart->axes(Qt::Vertical);
+        for (QAbstractAxis *ay : axesY) {
+            axisY = qobject_cast<QValueAxis*>(ay);
+            if (axisY) break;
+        }
+    }
+    if (!axisX) {
+        axisX = new QValueAxis;
+        axisX->setTitleText("Индекс точки");
+        axisX->setLabelFormat("%.0f");
+        chart->addAxis(axisX, Qt::AlignBottom);
+    }
+    if (!axisY) {
+        axisY = new QValueAxis;
+        axisY->setTitleText("мкР/ч");
+        axisY->setLabelFormat("%.0f");
+        chart->addAxis(axisY, Qt::AlignLeft);
+    }
+
+    qint64 minTs = std::numeric_limits<qint64>::max();
+    qint64 maxTs = std::numeric_limits<qint64>::min();
+    double minY = std::numeric_limits<double>::max();
+    double maxY = std::numeric_limits<double>::min();
+
+    // Цвета для серий
+    QList<QColor> palette = { QColor("#e74c3c"), QColor("#3498db"), QColor("#2ecc71"), QColor("#9b59b6"), QColor("#f1c40f"), QColor("#e67e22"), QColor("#1abc9c") };
+
+    int colorIndex = 0;
+    // Определяем тип графика
+    const QString type = chartTypeCombo ? chartTypeCombo->currentText() : QString("Точки");
+    QVector<QAbstractSeries*> createdSeries;
+
+    for (const QString &city : selectedCities) {
+        QColor color = palette[colorIndex % palette.size()];
+        QPen pen(color); pen.setWidth(3); pen.setCosmetic(true);
+
+        if (type == "Сглаженная") {
+            QSplineSeries *spline = new QSplineSeries();
+            spline->setName(city);
+            spline->setColor(color);
+            spline->setPen(pen);
+            spline->setPointsVisible(true);
+
+            int rowCount = table->rowCount();
+            for (int i = 0, idx = 0; i < rowCount; ++i) {
+                if (table->item(i, 0)->text() == city) {
+                    double rad = table->item(i, 2)->text().toDouble();
+                    spline->append(idx, rad);
+                    qint64 t = idx;
+                    minTs = std::min(minTs, t);
+                    maxTs = std::max(maxTs, t);
+                    minY = std::min(minY, rad);
+                    maxY = std::max(maxY, rad);
+                    idx++;
+                }
+            }
+
+            chart->addSeries(spline);
+            spline->attachAxis(axisX);
+            spline->attachAxis(axisY);
+            createdSeries.append(spline);
+        } else { // Точки+линии
+            // Линия
+            QLineSeries *line = new QLineSeries();
+            line->setName(city);
+            line->setColor(color);
+            line->setPen(pen);
+            // Точки поверх
+            QScatterSeries *scatter = new QScatterSeries();
+            scatter->setName(city + " • точки");
+            scatter->setColor(color);
+            scatter->setMarkerSize(7.5);
+
+    int rowCount = table->rowCount();
+            for (int i = 0, idx = 0; i < rowCount; ++i) {
+                if (table->item(i, 0)->text() == city) {
+                    double rad = table->item(i, 2)->text().toDouble();
+                    line->append(idx, rad);
+                    scatter->append(idx, rad);
+                    qint64 t = idx;
+                    minTs = std::min(minTs, t);
+                    maxTs = std::max(maxTs, t);
+                    minY = std::min(minY, rad);
+                    maxY = std::max(maxY, rad);
+                    idx++;
+                }
+            }
+
+            chart->addSeries(line);
+            line->attachAxis(axisX);
+            line->attachAxis(axisY);
+            chart->addSeries(scatter);
+            scatter->attachAxis(axisX);
+            scatter->attachAxis(axisY);
+            createdSeries.append(line);
+            createdSeries.append(scatter);
+        }
+
+        colorIndex++;
+    }
+
+    if (minTs == std::numeric_limits<qint64>::max()) {
+        QMessageBox::information(this, "Нет данных", "Нет данных для выбранных городов");
         return;
     }
 
+    // Удаляем предыдущие линии MIN/MAX и повторно активируем кнопку
+    for (QAbstractSeries *s : chart->series()) {
+        if (s->name() == "MIN линия" || s->name() == "MAX линия") {
+            chart->removeSeries(s);
+            s->deleteLater();
+        }
+    }
+    if (btnFindMinMax) btnFindMinMax->setEnabled(true);
 
-    QLineSeries *tempSeries = new QLineSeries();
-    tempSeries->setName("Температура");
-    for (int i = 0; i < temperatures.size(); ++i) {
-        tempSeries->append(i, temperatures[i]);
+    // Небольшие отступы по Y
+    double padding = (maxY - minY) * 0.1;
+    if (padding <= 0) padding = 1.0;
+    axisY->setRange(std::max(0.0, minY - padding), maxY + padding);
+    axisX->setRange(minTs, maxTs);
+
+    statusBar()->showMessage("✅ График обновлен", 3000);
+}
+
+// applyTheme removed; using toggleTheme for light/dark switch
+
+void MainWindow::toggleTheme()
+{
+    if (!radiationChartView || !radiationChartView->chart()) return;
+    QChart::ChartTheme current = radiationChartView->chart()->theme();
+    QChart::ChartTheme next = (current == QChart::ChartThemeDark) ? QChart::ChartThemeLight : QChart::ChartThemeDark;
+    radiationChartView->chart()->setTheme(next);
+}
+
+void MainWindow::findMinMax()
+{
+    if (!radiationChartView || !radiationChartView->chart()) return;
+    QChart *chart = radiationChartView->chart();
+    if (btnFindMinMax && !btnFindMinMax->isEnabled()) return; // уже добавлено
+    if (!showMinMaxCheck || !showMinMaxCheck->isChecked()) {
+        QMessageBox::information(this, "MIN/MAX", "Включите опцию 'Показывать линии MIN/MAX'.");
+        return;
     }
 
-    QChart *tempChart = temperatureChartView->chart();
-    tempChart->removeAllSeries();
-    tempChart->addSeries(tempSeries);
-    tempChart->createDefaultAxes();
-
-
-    QLineSeries *radSeries = new QLineSeries();
-    for (int i = 0; i < radiations.size(); ++i) {
-        radSeries->append(i, radiations[i]);
+    // Собираем все Y из текущих серий линий/баров
+    double minY = std::numeric_limits<double>::max();
+    double maxY = std::numeric_limits<double>::lowest();
+    for (QAbstractSeries *s : chart->series()) {
+        if (auto ls = qobject_cast<QLineSeries*>(s)) {
+            for (const QPointF &p : ls->points()) {
+                minY = std::min(minY, p.y());
+                maxY = std::max(maxY, p.y());
+            }
+        } else if (auto bs = qobject_cast<QBarSeries*>(s)) {
+            for (QBarSet *set : bs->barSets()) {
+                for (int i = 0; i < set->count(); ++i) {
+                    minY = std::min(minY, set->at(i));
+                    maxY = std::max(maxY, set->at(i));
+                }
+            }
+        }
     }
-    radiationChartView->chart()->removeAllSeries();
-    radiationChartView->chart()->addSeries(radSeries);
-    radiationChartView->chart()->createDefaultAxes();
 
-    QLineSeries *humSeries = new QLineSeries();
-    for (int i = 0; i < humidities.size(); ++i) {
-        humSeries->append(i, humidities[i]);
+    if (minY == std::numeric_limits<double>::max()) {
+        QMessageBox::information(this, "MIN/MAX", "Нет данных на графике.");
+        return;
     }
-    humidityChartView->chart()->removeAllSeries();
-    humidityChartView->chart()->addSeries(humSeries);
-    humidityChartView->chart()->createDefaultAxes();
 
-    QLineSeries *windSeries = new QLineSeries();
-    for (int i = 0; i < winds.size(); ++i) {
-        windSeries->append(i, winds[i]);
-    }
-    windChartView->chart()->removeAllSeries();
-    windChartView->chart()->addSeries(windSeries);
-    windChartView->chart()->createDefaultAxes();
+    // Рисуем горизонтальные линии MIN и MAX как отдельные серии
+    auto drawHLine = [&](double y, const QColor &color, const QString &name) {
+        QLineSeries *line = new QLineSeries();
+        line->setName(name);
+        QPen pen(color); pen.setWidth(2); pen.setStyle(Qt::DashLine); pen.setCosmetic(true);
+        line->setPen(pen);
+        // Диапазон X
+        QValueAxis *axisX = nullptr;
+        for (QAbstractAxis *ax : chart->axes(Qt::Horizontal)) {
+            if ((axisX = qobject_cast<QValueAxis*>(ax))) break;
+        }
+        double xMin = 0.0, xMax = 0.0;
+        if (axisX) { xMin = axisX->min(); xMax = axisX->max(); }
+        line->append(xMin, y);
+        line->append(xMax, y);
+        chart->addSeries(line);
+        line->attachAxis(axisX);
+        if (auto axisY = qobject_cast<QValueAxis*>(chart->axes(Qt::Vertical).value(0))) {
+            line->attachAxis(axisY);
+        }
+    };
 
-    QLineSeries *pressSeries = new QLineSeries();
-    for (int i = 0; i < pressures.size(); ++i) {
-        pressSeries->append(i, pressures[i]);
-    }
-    pressureChartView->chart()->removeAllSeries();
-    pressureChartView->chart()->addSeries(pressSeries);
-    pressureChartView->chart()->createDefaultAxes();
-
-    QLineSeries *uvSeries = new QLineSeries();
-    for (int i = 0; i < uvs.size(); ++i) {
-        uvSeries->append(i, uvs[i]);
-    }
-    uvChartView->chart()->removeAllSeries();
-    uvChartView->chart()->addSeries(uvSeries);
-    uvChartView->chart()->createDefaultAxes();
-
-    statusBar()->showMessage("✅ Графики обновлены", 3000);
+    drawHLine(minY, QColor("#27ae60"), "MIN линия");
+    drawHLine(maxY, QColor("#c0392b"), "MAX линия");
+    if (btnFindMinMax) btnFindMinMax->setEnabled(false);
 }
 
