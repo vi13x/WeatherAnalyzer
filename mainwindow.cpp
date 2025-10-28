@@ -39,6 +39,9 @@
 #include <QClipboard>
 #include <QApplication>
 #include <limits>
+#include <algorithm>
+#include <QDate>
+#include <QLegendMarker>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -53,38 +56,40 @@ MainWindow::MainWindow(QWidget *parent)
     tabWidget->addTab(dataTab, "📋 Данные");
 
     chartsTab = new QWidget;
-    tabWidget->addTab(chartsTab, "☢️ Радиация");
+    tabWidget->addTab(chartsTab, "📊 Графики");
 
 
     // Бот-вкладка удалена — фокус только на данных и графике радиации
 
     this->setStyleSheet(R"(
         QMainWindow {
-            background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
-                stop: 0 #f8f9fa, stop: 1 #e9ecef);
+            background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                stop:0 #f3f6fb, stop:1 #ffffff);
         }
         QGroupBox {
-            font-weight: bold;
+            font-weight: 600;
             font-size: 12px;
-            color: #2c3e50;
-            border: 2px solid #bdc3c7;
-            border-radius: 8px;
+            color: #1f2937;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
             margin-top: 10px;
             padding-top: 15px;
-            background-color: #ffffff;
+            background: #ffffff;
         }
         QGroupBox::title {
             subcontrol-origin: margin;
             subcontrol-position: top center;
-            padding: 0 10px;
-            background-color: #ecf0f1;
-            border-radius: 4px;
+            padding: 2px 10px;
+            background: #eef2f7;
+            border-radius: 6px;
+            color: #334155;
         }
         QFrame {
-            background-color: #ffffff;
-            border-radius: 10px;
-            border: 2px solid #dfe6e9;
+            background: #ffffff;
+            border-radius: 12px;
+            border: 1px solid #e5e7eb;
         }
+        QLabel { color: #1f2937; }
     )");
 
     QHBoxLayout *mainDataLayout = new QHBoxLayout(dataTab);
@@ -95,10 +100,10 @@ MainWindow::MainWindow(QWidget *parent)
     QFrame *leftPanel = new QFrame;
     leftPanel->setStyleSheet(R"(
         QFrame {
-            background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
-                stop: 0 #ffffff, stop: 1 #f8f9fa);
+            background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                stop:0 #ffffff, stop:1 #f7fafc);
             border-radius: 12px;
-            border: 2px solid #e0e6ed;
+            border: 1px solid #e5e7eb;
         }
     )");
 
@@ -139,7 +144,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     dateTimeEdit = new QDateTimeEdit(QDateTime::currentDateTime());
     dateTimeEdit->setCalendarPopup(true);
-    dateTimeEdit->setDisplayFormat("yyyy-MM-dd HH:mm");
+    dateTimeEdit->setDisplayFormat("yyyy-MM-dd");
     dateTimeEdit->setStyleSheet(R"(
         QDateTimeEdit {
             padding: 8px;
@@ -157,12 +162,12 @@ MainWindow::MainWindow(QWidget *parent)
         QCalendarWidget QSpinBox { background: #ffffff; color: #2c3e50; }
         QCalendarWidget QAbstractItemView:enabled { background: #ffffff; color: #2c3e50; selection-background-color: #3498db; selection-color: #ffffff; }
     )");
-    formLayout->addRow("🕐 Дата/время:", dateTimeEdit);
+    formLayout->addRow("📅 Дата:", dateTimeEdit);
 
     radiationSpin = new QDoubleSpinBox;
-    radiationSpin->setRange(0, 20000);
-    radiationSpin->setDecimals(2);
-    radiationSpin->setSuffix("мкР/ч");
+    radiationSpin->setRange(0, 1000);
+    radiationSpin->setDecimals(3);
+    radiationSpin->setSuffix(" мкЗв/ч");
     radiationSpin->setStyleSheet(R"(
         QDoubleSpinBox {
             padding: 8px;
@@ -175,10 +180,29 @@ MainWindow::MainWindow(QWidget *parent)
             border-color: #3498db;
         }
     )");
-    formLayout->addRow("☢️ Радиация:", radiationSpin);
+    formLayout->addRow("☢️ Радиация (мкЗв/ч):", radiationSpin);
 
     inputGroup->setLayout(formLayout);
     leftLayout->addWidget(inputGroup);
+
+    // Блок сортировки
+    QGroupBox *sortGroup = new QGroupBox("🔀 Сортировка таблицы");
+    QHBoxLayout *sortLayout = new QHBoxLayout;
+    sortCombo = new QComboBox;
+    sortCombo->addItems({
+        "Город A→Я",
+        "Город Я→A",
+        "Дата: старые→новые",
+        "Дата: новые→старые",
+        "Радиация: больше→меньше",
+        "Радиация: меньше→больше"
+    });
+    btnApplySort = new QPushButton("Применить");
+    connect(btnApplySort, &QPushButton::clicked, this, &MainWindow::applySort);
+    sortLayout->addWidget(sortCombo);
+    sortLayout->addWidget(btnApplySort);
+    sortGroup->setLayout(sortLayout);
+    leftLayout->addWidget(sortGroup);
 
 
     btnAdd = new QPushButton("➕ Добавить запись");
@@ -258,7 +282,7 @@ MainWindow::MainWindow(QWidget *parent)
     QVBoxLayout *tableLayout = new QVBoxLayout;
 
     table = new QTableWidget(0, 3);
-    QStringList headers = {"🏙️ Город", "🕐 Дата/время", "☢️ Радиация"};
+    QStringList headers = {"🏙️ Город", "📅 Дата", "☢️ Радиация (мкЗв/ч)"};
     table->setHorizontalHeaderLabels(headers);
     table->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
     table->setAlternatingRowColors(true);
@@ -351,13 +375,7 @@ MainWindow::MainWindow(QWidget *parent)
     )");
     connect(btnUpdateCharts, &QPushButton::clicked, this, &MainWindow::updateCharts);
 
-    btnThemeToggle = new QPushButton("⚫/⚪ Тема");
-    btnThemeToggle->setStyleSheet(R"(
-        QPushButton { padding: 8px 12px; border-radius: 6px; background: #2c3e50; color: #ffffff; font-weight: bold; }
-        QPushButton:hover { background: #1f2d3a; }
-    )");
-    connect(btnThemeToggle, &QPushButton::clicked, this, &MainWindow::toggleTheme);
-    chartsButtonLayout->addWidget(btnThemeToggle);
+    // Переключатель темы удалён
     chartsButtonLayout->addStretch();
     chartsButtonLayout->addWidget(btnUpdateCharts);
     chartsButtonLayout->addStretch();
@@ -368,7 +386,13 @@ MainWindow::MainWindow(QWidget *parent)
     QWidget *controlsPanel = new QWidget;
     controlsPanel->setFixedWidth(260);
     controlsPanel->setStyleSheet(R"(
-        QWidget { background: #ffffff; border: 2px solid #e0e6ed; border-radius: 8px; }
+        QWidget { background: #ffffff; border: 1px solid #e5e7eb; border-radius: 10px; }
+        QLabel { color: #1f2937; font-weight: 600; }
+        QComboBox { padding: 8px; border: 1px solid #cbd5e1; border-radius: 8px; background: #ffffff; color: #1f2937; }
+        QComboBox:hover { border-color: #3b82f6; }
+        QCheckBox { color: #1f2937; }
+        QPushButton { padding: 9px 12px; border-radius: 8px; background: #3b82f6; color: #ffffff; font-weight: 700; }
+        QPushButton:hover { background: #2563eb; }
     )");
     QVBoxLayout *controlsLayout = new QVBoxLayout(controlsPanel);
     QLabel *chartTypeLbl = new QLabel("Тип графика:");
@@ -378,11 +402,12 @@ MainWindow::MainWindow(QWidget *parent)
     controlsLayout->addWidget(chartTypeLbl);
     controlsLayout->addWidget(chartTypeCombo);
 
-    showMinMaxCheck = new QCheckBox("Показывать линии MIN/MAX");
-    controlsLayout->addWidget(showMinMaxCheck);
-    btnFindMinMax = new QPushButton("Найти MIN/MAX и добавить линии");
+    btnFindMinMax = new QPushButton("MIN/MAX");
     controlsLayout->addWidget(btnFindMinMax);
     connect(btnFindMinMax, &QPushButton::clicked, this, &MainWindow::findMinMax);
+    btnTrend = new QPushButton("Тенденция");
+    controlsLayout->addWidget(btnTrend);
+    connect(btnTrend, &QPushButton::clicked, this, &MainWindow::computeTrend);
 
     controlsLayout->addStretch();
 
@@ -514,9 +539,30 @@ void MainWindow::addRecord()
     int row = table->rowCount();
     table->insertRow(row);
 
-    table->setItem(row, 0, new QTableWidgetItem(city));
-    table->setItem(row, 1, new QTableWidgetItem(dateTimeEdit->dateTime().toString("yyyy-MM-dd HH:mm")));
-    table->setItem(row, 2, new QTableWidgetItem(QString::number(radiationSpin->value(), 'f', 2)));
+    double radMicroSv = radiationSpin->value();
+    auto *cityItem = new QTableWidgetItem(city);
+    cityItem->setData(Qt::UserRole, seqCounter);
+    table->setItem(row, 0, cityItem);
+    auto *dtItem = new QTableWidgetItem(dateTimeEdit->dateTime().toString("yyyy-MM-dd"));
+    table->setItem(row, 1, dtItem);
+    auto *radItem = new QTableWidgetItem(QString("%1 мкЗв/ч")
+                                         .arg(radMicroSv, 0, 'f', 3));
+    // Цвет по уровню опасности (мкЗв/ч) — красим ВСЕ ячейки строки
+    QColor bgColor;
+    if (radMicroSv <= 0.15) {
+        bgColor = QColor("#d1fae5"); // green-100
+    } else if (radMicroSv <= 0.30) {
+        bgColor = QColor("#fef3c7"); // yellow-100
+    } else if (radMicroSv <= 0.60) {
+        bgColor = QColor("#ffedd5"); // orange-100
+    } else {
+        bgColor = QColor("#fee2e2"); // red-100
+    }
+    cityItem->setBackground(bgColor);
+    dtItem->setBackground(bgColor);
+    radItem->setBackground(bgColor);
+    table->setItem(row, 2, radItem);
+    seqCounter++;
 
     statusBar()->showMessage(QString("✅ Добавлена запись для города %1").arg(city), 3000);
 }
@@ -540,7 +586,10 @@ void MainWindow::analyzeData()
     for (int i = 0; i < rows; ++i) {
         QString recordCity = table->item(i, 0)->text();
         if (recordCity == currentCity) {
-            rads.append(table->item(i, 2)->text().toDouble());
+            // Значение хранится как "X.XXX мкЗв/ч" — берём первое число
+            QString radText = table->item(i, 2)->text();
+            bool ok = false; double rad = radText.section(' ', 0, 0).toDouble(&ok);
+            rads.append(ok ? rad : 0.0);
             cityRecordCount++;
         }
     }
@@ -658,9 +707,24 @@ void MainWindow::loadFromJson()
         int row = table->rowCount();
         table->insertRow(row);
 
-        table->setItem(row, 0, new QTableWidgetItem(obj.value("city").toString()));
-        table->setItem(row, 1, new QTableWidgetItem(obj.value("datetime").toString()));
-        table->setItem(row, 2, new QTableWidgetItem(QString::number(obj.value("radiation").toDouble(), 'f', 2)));
+        QString city = obj.value("city").toString();
+        double radMicroSv = obj.value("radiation").toDouble();
+        auto *cityItem = new QTableWidgetItem(city);
+        cityItem->setData(Qt::UserRole, seqCounter);
+        table->setItem(row, 0, cityItem);
+        auto *dtItem = new QTableWidgetItem(obj.value("datetime").toString());
+        table->setItem(row, 1, dtItem);
+        auto *radItem = new QTableWidgetItem(QString("%1 мкЗв/ч").arg(radMicroSv, 0, 'f', 3));
+        QColor bgColor;
+        if (radMicroSv <= 0.15) bgColor = QColor("#d1fae5");
+        else if (radMicroSv <= 0.30) bgColor = QColor("#fef3c7");
+        else if (radMicroSv <= 0.60) bgColor = QColor("#ffedd5");
+        else bgColor = QColor("#fee2e2");
+        cityItem->setBackground(bgColor);
+        dtItem->setBackground(bgColor);
+        radItem->setBackground(bgColor);
+        table->setItem(row, 2, radItem);
+        seqCounter++;
     }
 
     QMessageBox::information(this, "Успех", QString("Загружено %1 записей из файла:\n%2").arg(records.size()).arg(fileName));
@@ -685,7 +749,10 @@ void MainWindow::createRadiationChart()
     chart->legend()->setFont(legendFont);
     chart->setBackgroundBrush(QBrush(QColor(255,255,255)));
     chart->setPlotAreaBackgroundVisible(true);
-    chart->setPlotAreaBackgroundBrush(QLinearGradient(0,0,0,1));
+    QLinearGradient bg(0,0,0,1); bg.setCoordinateMode(QGradient::ObjectBoundingMode);
+    bg.setColorAt(0.0, QColor(248,250,252));
+    bg.setColorAt(1.0, QColor(238,242,247));
+    chart->setPlotAreaBackgroundBrush(bg);
 
     // Индексная ось X без привязки к датам
     auto *axisX = new QValueAxis;
@@ -696,7 +763,7 @@ void MainWindow::createRadiationChart()
     axisX->setLabelsFont(axisFont);
 
     auto *axisY = new QValueAxis;
-    axisY->setTitleText("мкР/ч");
+    axisY->setTitleText("мкЗв/ч");
     axisY->setLabelFormat("%.0f");
     axisY->setTickCount(7);
     axisY->setMinorTickCount(1);
@@ -762,7 +829,7 @@ void MainWindow::updateCharts()
     double maxY = std::numeric_limits<double>::min();
 
     // Цвета для серий
-    QList<QColor> palette = { QColor("#e74c3c"), QColor("#3498db"), QColor("#2ecc71"), QColor("#9b59b6"), QColor("#f1c40f"), QColor("#e67e22"), QColor("#1abc9c") };
+    QList<QColor> palette = { QColor("#2563eb"), QColor("#10b981"), QColor("#f59e0b"), QColor("#8b5cf6"), QColor("#ef4444"), QColor("#14b8a6"), QColor("#f97316") };
 
     int colorIndex = 0;
     // Определяем тип графика
@@ -780,18 +847,26 @@ void MainWindow::updateCharts()
             spline->setPen(pen);
             spline->setPointsVisible(true);
 
-            int rowCount = table->rowCount();
-            for (int i = 0, idx = 0; i < rowCount; ++i) {
+            // Собираем (seq, radiation)
+            struct Rec { int seq; double y; };
+            QVector<Rec> recs;
+            int rowCount = table->rowCount(); recs.reserve(rowCount);
+            for (int i = 0; i < rowCount; ++i) {
                 if (table->item(i, 0)->text() == city) {
-                    double rad = table->item(i, 2)->text().toDouble();
-                    spline->append(idx, rad);
-                    qint64 t = idx;
-                    minTs = std::min(minTs, t);
-                    maxTs = std::max(maxTs, t);
-                    minY = std::min(minY, rad);
-                    maxY = std::max(maxY, rad);
-                    idx++;
+                    int seq = table->item(i, 0)->data(Qt::UserRole).toInt();
+                    QString radText = table->item(i, 2)->text();
+                    double rad = radText.section(' ', 0, 0).toDouble();
+                    recs.push_back({ seq, rad });
                 }
+            }
+            std::sort(recs.begin(), recs.end(), [](const Rec &a, const Rec &b){ return a.seq < b.seq; });
+            for (int idx = 0; idx < recs.size(); ++idx) {
+                double rad = recs[idx].y;
+                spline->append(idx, rad);
+                minTs = std::min(minTs, (qint64)idx);
+                maxTs = std::max(maxTs, (qint64)idx);
+                minY = std::min(minY, rad);
+                maxY = std::max(maxY, rad);
             }
 
             chart->addSeries(spline);
@@ -806,23 +881,30 @@ void MainWindow::updateCharts()
             line->setPen(pen);
             // Точки поверх
             QScatterSeries *scatter = new QScatterSeries();
-            scatter->setName(city + " • точки");
+            scatter->setName(city); // То же название, точки не показываем в легенде
             scatter->setColor(color);
             scatter->setMarkerSize(7.5);
 
-    int rowCount = table->rowCount();
-            for (int i = 0, idx = 0; i < rowCount; ++i) {
+            struct Rec { int seq; double y; };
+            QVector<Rec> recs;
+            int rowCount = table->rowCount(); recs.reserve(rowCount);
+            for (int i = 0; i < rowCount; ++i) {
                 if (table->item(i, 0)->text() == city) {
-                    double rad = table->item(i, 2)->text().toDouble();
-                    line->append(idx, rad);
-                    scatter->append(idx, rad);
-                    qint64 t = idx;
-                    minTs = std::min(minTs, t);
-                    maxTs = std::max(maxTs, t);
-                    minY = std::min(minY, rad);
-                    maxY = std::max(maxY, rad);
-                    idx++;
+                    int seq = table->item(i, 0)->data(Qt::UserRole).toInt();
+                    QString radText = table->item(i, 2)->text();
+                    double rad = radText.section(' ', 0, 0).toDouble();
+                    recs.push_back({ seq, rad });
                 }
+            }
+            std::sort(recs.begin(), recs.end(), [](const Rec &a, const Rec &b){ return a.seq < b.seq; });
+            for (int idx = 0; idx < recs.size(); ++idx) {
+                double rad = recs[idx].y;
+                line->append(idx, rad);
+                scatter->append(idx, rad);
+                minTs = std::min(minTs, (qint64)idx);
+                maxTs = std::max(maxTs, (qint64)idx);
+                minY = std::min(minY, rad);
+                maxY = std::max(maxY, rad);
             }
 
             chart->addSeries(line);
@@ -833,6 +915,12 @@ void MainWindow::updateCharts()
             scatter->attachAxis(axisY);
             createdSeries.append(line);
             createdSeries.append(scatter);
+            // Скрываем точки в легенде
+            if (chart->legend()) {
+                for (QLegendMarker *m : chart->legend()->markers(scatter)) {
+                    if (m) m->setVisible(false);
+                }
+            }
         }
 
         colorIndex++;
@@ -858,28 +946,31 @@ void MainWindow::updateCharts()
     axisY->setRange(std::max(0.0, minY - padding), maxY + padding);
     axisX->setRange(minTs, maxTs);
 
+    // Добавляем подпись диапазона дат
+    QDate minDate, maxDate;
+    for (const QString &city : selectedCities) {
+        for (int i = 0; i < table->rowCount(); ++i) {
+            if (table->item(i, 0)->text() == city) {
+                QDate dt = QDate::fromString(table->item(i, 1)->text(), "yyyy-MM-dd");
+                if (!minDate.isValid() || dt < minDate) minDate = dt;
+                if (!maxDate.isValid() || dt > maxDate) maxDate = dt;
+            }
+        }
+    }
+    if (minDate.isValid() && maxDate.isValid()) {
+        chart->setTitle(QString("☢️ Радиационные данные взяты с %1 по %2").arg(minDate.toString("yyyy-MM-dd")).arg(maxDate.toString("yyyy-MM-dd")));
+    }
+
     statusBar()->showMessage("✅ График обновлен", 3000);
 }
 
-// applyTheme removed; using toggleTheme for light/dark switch
-
-void MainWindow::toggleTheme()
-{
-    if (!radiationChartView || !radiationChartView->chart()) return;
-    QChart::ChartTheme current = radiationChartView->chart()->theme();
-    QChart::ChartTheme next = (current == QChart::ChartThemeDark) ? QChart::ChartThemeLight : QChart::ChartThemeDark;
-    radiationChartView->chart()->setTheme(next);
-}
+// Тема отключена (селектора нет)
 
 void MainWindow::findMinMax()
 {
     if (!radiationChartView || !radiationChartView->chart()) return;
     QChart *chart = radiationChartView->chart();
     if (btnFindMinMax && !btnFindMinMax->isEnabled()) return; // уже добавлено
-    if (!showMinMaxCheck || !showMinMaxCheck->isChecked()) {
-        QMessageBox::information(this, "MIN/MAX", "Включите опцию 'Показывать линии MIN/MAX'.");
-        return;
-    }
 
     // Собираем все Y из текущих серий линий/баров
     double minY = std::numeric_limits<double>::max();
@@ -902,6 +993,17 @@ void MainWindow::findMinMax()
 
     if (minY == std::numeric_limits<double>::max()) {
         QMessageBox::information(this, "MIN/MAX", "Нет данных на графике.");
+        return;
+    }
+
+    // Если уже есть — удалить (toggle)
+    QList<QAbstractSeries*> toRemove;
+    for (QAbstractSeries *s : chart->series()) {
+        if (s->name() == "MIN линия" || s->name() == "MAX линия") toRemove.append(s);
+    }
+    if (!toRemove.isEmpty()) {
+        for (QAbstractSeries *s : toRemove) { chart->removeSeries(s); s->deleteLater(); }
+        if (btnFindMinMax) btnFindMinMax->setEnabled(true);
         return;
     }
 
@@ -930,5 +1032,117 @@ void MainWindow::findMinMax()
     drawHLine(minY, QColor("#27ae60"), "MIN линия");
     drawHLine(maxY, QColor("#c0392b"), "MAX линия");
     if (btnFindMinMax) btnFindMinMax->setEnabled(false);
+}
+
+void MainWindow::computeTrend()
+{
+    if (!radiationChartView || !radiationChartView->chart()) return;
+    QChart *chart = radiationChartView->chart();
+
+    // Toggle: если есть — убрать
+    QList<QAbstractSeries*> toRemove;
+    for (QAbstractSeries *s : chart->series()) {
+        if (s->name() == "Тенденция") toRemove.append(s);
+    }
+    if (!toRemove.isEmpty()) {
+        for (QAbstractSeries *s : toRemove) { chart->removeSeries(s); s->deleteLater(); }
+        return;
+    }
+
+    // Собираем все точки из линий и сплайнов (без MIN/MAX и без scatter)
+    QVector<QPointF> pts;
+    for (QAbstractSeries *s : chart->series()) {
+        if (s->name() == "MIN линия" || s->name() == "MAX линия") continue;
+        if (auto line = qobject_cast<QLineSeries*>(s)) {
+            const auto v = line->points();
+            pts += v;
+        } else if (auto spline = qobject_cast<QSplineSeries*>(s)) {
+            const auto v = spline->points();
+            pts += v;
+        }
+    }
+    if (pts.size() < 2) {
+        QMessageBox::information(this, "Тенденция", "Недостаточно точек для расчёта тенденции.");
+        return;
+    }
+
+    // Линейная регрессия y = a*x + b
+    double sx = 0, sy = 0, sxx = 0, sxy = 0; int n = pts.size();
+    for (const QPointF &p : pts) { sx += p.x(); sy += p.y(); sxx += p.x()*p.x(); sxy += p.x()*p.y(); }
+    double denom = (n * sxx - sx * sx);
+    if (denom == 0) return;
+    double a = (n * sxy - sx * sy) / denom;
+    double b = (sy - a * sx) / n;
+
+    // Диапазон X оси
+    QValueAxis *axisX = nullptr; QValueAxis *axisY = nullptr;
+    for (QAbstractAxis *ax : chart->axes(Qt::Horizontal)) axisX = qobject_cast<QValueAxis*>(ax);
+    for (QAbstractAxis *ay : chart->axes(Qt::Vertical)) axisY = qobject_cast<QValueAxis*>(ay);
+    if (!axisX || !axisY) return;
+    double xMin = axisX->min();
+    double xMax = axisX->max();
+
+    QLineSeries *trend = new QLineSeries();
+    trend->setName("Тенденция");
+    QPen pen(QColor("#111827")); pen.setWidth(2); pen.setStyle(Qt::DotLine); pen.setCosmetic(true); trend->setPen(pen);
+    trend->append(xMin, a * xMin + b);
+    trend->append(xMax, a * xMax + b);
+    chart->addSeries(trend);
+    trend->attachAxis(axisX);
+    trend->attachAxis(axisY);
+}
+
+void MainWindow::applySort()
+{
+    if (!table) return;
+    struct Row { QString city; QDate dt; double rad; int originalSeq; };
+    QVector<Row> rows; rows.reserve(table->rowCount());
+    for (int i = 0; i < table->rowCount(); ++i) {
+        QTableWidgetItem *cityIt = table->item(i,0);
+        QTableWidgetItem *dtIt   = table->item(i,1);
+        QTableWidgetItem *radIt  = table->item(i,2);
+        if (!cityIt || !dtIt || !radIt) continue;
+        QString radText = radIt->text();
+        // Формат: "X.XXX мкЗв/ч" — берём первое число
+        bool ok = false; double rad = radText.section(' ', 0, 0).toDouble(&ok);
+        if (!ok) rad = radText.toDouble();
+        Row r{ cityIt->text(), QDate::fromString(dtIt->text(), "yyyy-MM-dd"), rad, cityIt->data(Qt::UserRole).toInt() };
+        rows.push_back(r);
+    }
+    const QString mode = sortCombo ? sortCombo->currentText() : QString();
+    auto byCityAsc = [](const Row &a, const Row &b){ return a.city.localeAwareCompare(b.city) < 0; };
+    auto byCityDesc = [](const Row &a, const Row &b){ return a.city.localeAwareCompare(b.city) > 0; };
+    auto byOldNew = [](const Row &a, const Row &b){ return a.dt < b.dt; };
+    auto byNewOld = [](const Row &a, const Row &b){ return a.dt > b.dt; };
+    auto byRadDesc = [](const Row &a, const Row &b){ return a.rad > b.rad; };
+    auto byRadAsc  = [](const Row &a, const Row &b){ return a.rad < b.rad; };
+    if (mode.startsWith("Город A")) std::sort(rows.begin(), rows.end(), byCityAsc);
+    else if (mode.startsWith("Город Я")) std::sort(rows.begin(), rows.end(), byCityDesc);
+    else if (mode.startsWith("Дата: старые")) std::sort(rows.begin(), rows.end(), byOldNew);
+    else if (mode.startsWith("Дата: новые")) std::sort(rows.begin(), rows.end(), byNewOld);
+    else if (mode.startsWith("Радиация: больше")) std::sort(rows.begin(), rows.end(), byRadDesc);
+    else if (mode.startsWith("Радиация: меньше")) std::sort(rows.begin(), rows.end(), byRadAsc);
+
+    table->setRowCount(0);
+    for (const Row &r : rows) {
+        int row = table->rowCount(); table->insertRow(row);
+        auto *cityItem = new QTableWidgetItem(r.city);
+        cityItem->setData(Qt::UserRole, r.originalSeq);
+        table->setItem(row, 0, cityItem);
+        auto *dtItem = new QTableWidgetItem(r.dt.toString("yyyy-MM-dd"));
+        table->setItem(row, 1, dtItem);
+        double radMicroSv = r.rad;
+        auto *radItem = new QTableWidgetItem(QString("%1 мкЗв/ч").arg(radMicroSv, 0, 'f', 3));
+        QColor bgColor;
+        if (radMicroSv <= 0.15) bgColor = QColor("#d1fae5");
+        else if (radMicroSv <= 0.30) bgColor = QColor("#fef3c7");
+        else if (radMicroSv <= 0.60) bgColor = QColor("#ffedd5");
+        else bgColor = QColor("#fee2e2");
+        // Подсвечиваем ВСЕ ячейки строки
+        cityItem->setBackground(bgColor);
+        dtItem->setBackground(bgColor);
+        radItem->setBackground(bgColor);
+        table->setItem(row, 2, radItem);
+    }
 }
 

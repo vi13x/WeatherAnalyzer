@@ -19,6 +19,8 @@ class QPlainTextEdit;
 class QListWidget;
 class QPushButton;
 class QCheckBox;
+class QGroupBox;
+class QFormLayout;
 
 struct Coord { double lat; double lon; };
 
@@ -36,8 +38,9 @@ private slots:
     void loadFromJson();
     void updateCharts();
     void analyzeData();
-    void toggleTheme();
     void findMinMax();
+    void computeTrend();
+    void applySort();
 
 private:
     void initializeCities();
@@ -59,7 +62,6 @@ private:
     QDoubleSpinBox *radiationSpin;
     QListWidget *cityOverlayList;
     QComboBox *chartTypeCombo;
-    QCheckBox *showMinMaxCheck;
 
     QTableWidget *table;
     QPlainTextEdit *analysisText;
@@ -73,8 +75,12 @@ private:
     QPushButton *btnSelectAllCities;
     QPushButton *btnClearAllCities;
     QPushButton *btnFindMinMax;
+    QPushButton *btnTrend;
+    QComboBox *sortCombo;
+    QPushButton *btnApplySort;
 
     QMap<QString, Coord> cityCoords;
+    int seqCounter = 0;
 };
 
 #endif // MAINWINDOW_H
