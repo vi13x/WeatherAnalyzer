@@ -45,14 +45,3 @@ make
 ```bash
 ./WeatherAnalyzer
 ```
-
-4. **Telegram-бот (опционально)**:
-
-* Настройте токен бота в `bot/config.yaml`.
-* Запустите бота:
-
-```bash
-./WeatherAnalyzer_bot
-```
-
-
