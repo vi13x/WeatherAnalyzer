@@ -1,5 +1,0 @@
-D:/project Qt/weather/build/Desktop_Qt_6_9_2_MinGW_64_bit-Debug/CMakeFiles/WeatherAnalyzer.dir
-D:/project Qt/weather/build/Desktop_Qt_6_9_2_MinGW_64_bit-Debug/CMakeFiles/edit_cache.dir
-D:/project Qt/weather/build/Desktop_Qt_6_9_2_MinGW_64_bit-Debug/CMakeFiles/rebuild_cache.dir
-D:/project Qt/weather/build/Desktop_Qt_6_9_2_MinGW_64_bit-Debug/CMakeFiles/WeatherAnalyzer_autogen_timestamp_deps.dir
-D:/project Qt/weather/build/Desktop_Qt_6_9_2_MinGW_64_bit-Debug/CMakeFiles/WeatherAnalyzer_autogen.dir
