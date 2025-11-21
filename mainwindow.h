@@ -2,32 +2,39 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include <QStyledItemDelegate>
 #include <QMap>
+#include <QVector>
+#include <QColor>
+#include <QDate>
+#include <QSpinBox>
+#include <QTableWidget>
+#include <QPlainTextEdit>
+// ✅ добавлено
 
-// Предварительные объявления для графиков
+QT_BEGIN_NAMESPACE
 class QTabWidget;
 class QChartView;
 class QChart;
 class QLineSeries;
+class QSplineSeries;
+class QScatterSeries;
 class QValueAxis;
-class QDateTimeAxis;
 class QComboBox;
 class QDateTimeEdit;
-class QDoubleSpinBox;
-class QTableWidget;
-class QPlainTextEdit;
 class QListWidget;
 class QPushButton;
-class QCheckBox;
 class QGroupBox;
 class QFormLayout;
+class QAbstractSeries;
+class QLegendMarker;
+QT_END_NAMESPACE
 
 struct Coord { double lat; double lon; };
 
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
-
 public:
     explicit MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
@@ -47,40 +54,34 @@ private:
     void setupCharts();
     void createRadiationChart();
 
+    QTabWidget *tabWidget = nullptr;
+    QWidget *dataTab = nullptr;
+    QWidget *chartsTab = nullptr;
+    QChartView *radiationChartView = nullptr;
 
-    // Указатели на UI элементы
-    QTabWidget *tabWidget;
-    QWidget *dataTab;
-    QWidget *chartsTab;
+    QComboBox *cityComboBox = nullptr;
+    QDateTimeEdit *dateTimeEdit = nullptr;
 
+    QSpinBox *radiationSpin = nullptr;   // ✅ исправлено
 
-    // Графики
-    QChartView *radiationChartView;
+    QListWidget *cityOverlayList = nullptr;
+    QComboBox *chartTypeCombo = nullptr;
+    QTableWidget *table = nullptr;
+    QPlainTextEdit *analysisText = nullptr;
 
-    QComboBox *cityComboBox;
-    QDateTimeEdit *dateTimeEdit;
-    QDoubleSpinBox *radiationSpin;
-    QListWidget *cityOverlayList;
-    QComboBox *chartTypeCombo;
+    QPushButton *btnAdd = nullptr;
+    QPushButton *btnAnalyze = nullptr;
+    QPushButton *btnSave = nullptr;
+    QPushButton *btnLoad = nullptr;
+    QPushButton *btnUpdateCharts = nullptr;
+    QPushButton *btnSelectAllCities = nullptr;
+    QPushButton *btnClearAllCities = nullptr;
+    QPushButton *btnFindMinMax = nullptr;
+    QPushButton *btnTrend = nullptr;
+    QComboBox *sortCombo = nullptr;
+    QPushButton *btnApplySort = nullptr;
 
-    QTableWidget *table;
-    QPlainTextEdit *analysisText;
-
-    QPushButton *btnAdd;
-    QPushButton *btnAnalyze;
-    QPushButton *btnSave;
-    QPushButton *btnLoad;
-    QPushButton *btnUpdateCharts;
-    QPushButton *btnThemeToggle;
-    QPushButton *btnSelectAllCities;
-    QPushButton *btnClearAllCities;
-    QPushButton *btnFindMinMax;
-    QPushButton *btnTrend;
-    QComboBox *sortCombo;
-    QPushButton *btnApplySort;
-
-    QMap<QString, Coord> cityCoords;
     int seqCounter = 0;
 };
 
-#endif // MAINWINDOW_H
+#endif
